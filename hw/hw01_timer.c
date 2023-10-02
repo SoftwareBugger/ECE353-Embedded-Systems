@@ -17,12 +17,12 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event);
 /*****************************************************************************/
 /*  Global Variables                                                         */
 /*****************************************************************************/
-hw01_timer_alerts_t SW1 = HW01_ALERT_NONE;
-hw01_timer_alerts_t SW2 = HW01_ALERT_NONE;
-hw01_timer_alerts_t SW3 = HW01_ALERT_NONE;
-hw01_timer_alerts_t INC = HW01_ALERT_NONE;
-hw01_timer_alerts_t DEC = HW01_ALERT_NONE;
-hw01_timer_alerts_t BLK = HW01_ALERT_NONE;
+extern volatile hw01_timer_alerts_t SW1;
+extern volatile hw01_timer_alerts_t SW2;
+extern volatile hw01_timer_alerts_t SW3;
+extern volatile hw01_timer_alerts_t INC;
+extern volatile hw01_timer_alerts_t DEC;
+extern volatile hw01_timer_alerts_t BLK;
 
 /* Timer object and timer_cfg object */
 cyhal_timer_t timer_obj;
@@ -72,8 +72,8 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
         if (ISRcount_SW1 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
     }
     else {
-        if (ISRcount_SW1 < 20) SW1 = HW01_ALERT_BUTTON_LT_2S;
-        else SW1 = HW01_ALERT_BUTTON_GT_2S;
+        if (ISRcount_SW1 < 20 && ISRcount_SW1 > 0) SW1 = HW01_ALERT_BUTTON_LT_2S;
+        else if (ISRcount_SW1 >= 20) SW1 = HW01_ALERT_BUTTON_GT_2S;
         ISRcount_SW1 = 0;
     }
 
@@ -82,8 +82,8 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
         if (ISRcount_SW2 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
     }
     else {
-        if (ISRcount_SW2 < 20) SW2 = HW01_ALERT_BUTTON_LT_2S;
-        else SW2 = HW01_ALERT_BUTTON_GT_2S;
+        if (ISRcount_SW2 < 20 && ISRcount_SW2 > 0) SW2 = HW01_ALERT_BUTTON_LT_2S;
+        else if (ISRcount_SW2 >= 20) SW2 = HW01_ALERT_BUTTON_GT_2S;
         ISRcount_SW2 = 0;
     }
 
@@ -92,8 +92,8 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
         if (ISRcount_SW3 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
     }
     else {
-        if (ISRcount_SW3 < 20) SW3 = HW01_ALERT_BUTTON_LT_2S;
-        else SW3 = HW01_ALERT_BUTTON_GT_2S;
+        if (ISRcount_SW3 < 20 && ISRcount_SW3 > 0) SW3 = HW01_ALERT_BUTTON_LT_2S;
+        else if (ISRcount_SW3 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
         ISRcount_SW3 = 0;
     }
 

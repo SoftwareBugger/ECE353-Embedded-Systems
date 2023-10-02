@@ -13,12 +13,11 @@
 
 #include "hw01_draw.h"
 #include "hw01_timer.h"
-
 typedef enum {
     SET_TIME,
     RUN,
     SET_ALARM
-} curr_mode;
+}curr_mode;
 /**
  * @brief 
  * Initializes the PSoC6 Peripherals used for HW01 
