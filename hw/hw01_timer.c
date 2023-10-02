@@ -56,7 +56,7 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
     static uint8_t ISRcount_SEC = 0;
     uint32_t reg_val = PORT_BUTTONS->IN;
     ISRcount_SEC = (ISRcount_SEC + 1) % 10;
-    ISRcount_BLK = (ISRcount_BLK + 1) % 5;
+    ISRcount_BLK = (ISRcount_BLK + 1) % 10;
     if (ISRcount_BLK == 0) {
         BLK = HW01_ALERT_BLINK;
     }
@@ -69,6 +69,7 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
 
     if ((reg_val & SW1_MASK) == 0) {
         ISRcount_SW1++;
+        if (ISRcount_SW1 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
     }
     else {
         if (ISRcount_SW1 < 20) SW1 = HW01_ALERT_BUTTON_LT_2S;
@@ -78,6 +79,7 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
 
     if ((reg_val & SW2_MASK) == 0) {
         ISRcount_SW2++;
+        if (ISRcount_SW2 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
     }
     else {
         if (ISRcount_SW2 < 20) SW2 = HW01_ALERT_BUTTON_LT_2S;
@@ -87,6 +89,7 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
 
     if ((reg_val & SW3_MASK) == 0) {
         ISRcount_SW3++;
+        if (ISRcount_SW3 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
     }
     else {
         if (ISRcount_SW3 < 20) SW3 = HW01_ALERT_BUTTON_LT_2S;
