@@ -1,5 +1,6 @@
 -I.
 -I./drivers
+-I./hw
 -I./ice
 -I./libs
 -I./libs/TARGET_ECE353-BSP

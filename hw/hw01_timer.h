@@ -21,6 +21,7 @@ typedef enum {
     HW01_ALERT_BLINK                /* Blink the Time/Alarm at a rate of 2Hz */
 }hw01_timer_alerts_t;
 
+
 /* Global Variables that will be used to detect when various
  * events have occurred
  */

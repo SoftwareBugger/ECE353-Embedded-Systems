@@ -1,6 +1,6 @@
 /**
  * @file ice02.c
- * @author your name (you@domain.com)
+ * @author Han Lyu (you@domain.com)
  * @brief
  * @version 0.1
  * @date 2023-08-25
@@ -55,40 +55,18 @@ bool is_button_pressed(uint32_t button_mask);
  * The button has not been released
  */
 bool is_button_pressed(uint32_t button_mask)
-{ 
-    static uint32_t current_reg_val;
-    switch (button_mask) {
-        case SW1_MASK:
-            current_reg_val = REG_PUSH_BUTTON_IN;
-            static uint32_t past1_reg_val = 0xFFFFFFF;
-            if (((current_reg_val & button_mask) != 0) && ((past1_reg_val & button_mask) == 0)){
-                past1_reg_val = current_reg_val;
-                return true;
-            }
-            past1_reg_val = current_reg_val;
-            return false;
-            break;
-        case SW2_MASK:
-            current_reg_val = REG_PUSH_BUTTON_IN;
-            static uint32_t past2_reg_val = 0xFFFFFFF;
-            if (((current_reg_val & button_mask) != 0) && ((past2_reg_val & button_mask) == 0)){
-                past2_reg_val = current_reg_val;
-                return true;
-            }
-            past2_reg_val = current_reg_val;
-            return false;
-            break;
-        case SW3_MASK:
-            current_reg_val = REG_PUSH_BUTTON_IN;
-            static uint32_t past3_reg_val = 0xFFFFFFF;
-            if (((current_reg_val & button_mask) != 0) && ((past3_reg_val & button_mask) == 0)){
-                past3_reg_val = current_reg_val;
-                return true;
-            }
-            past3_reg_val = current_reg_val;
-            return false;
-            break;
+{
+    static uint32_t previousState = 0;
+    // unknown bitmask, so return false
+    if (button_mask != SW1_MASK && button_mask != SW2_MASK && button_mask != SW3_MASK) return false;
+    uint8_t current = button_mask & REG_PUSH_BUTTON_IN;
+    uint8_t previous = button_mask & previousState;
+    if (current != previous) {
+        previousState = REG_PUSH_BUTTON_IN;
+        if (current) return false;
+        return true;
     }
+    return false;
 }
 
 
@@ -108,7 +86,6 @@ void peripheral_init(void)
  */
 void main_app(void)
 {
-    
     while (1)
     {
         if (is_button_pressed(SW1_MASK))

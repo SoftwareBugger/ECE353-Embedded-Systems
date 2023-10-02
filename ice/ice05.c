@@ -44,6 +44,7 @@ void peripheral_init(void)
 
     /* Set the SysTick Timer to that it  expires every 100uS*/
     /* ADD CODE */
+    systick_init(TICKS_US_100);
 }
 
 /**
@@ -62,10 +63,31 @@ void main_app(void)
         if (systick_expired())
         {
             /* ADD CODE */
+            timer_count++;
+            if (timer_count%50 == 0) {
+                button_state = get_buttons();
+                switch (button_state) {
+                case BUTTON_SW1_RELEASED:
+                    if (on_threshold != 0) on_threshold -= 10;
+                    break;
+                case BUTTON_SW2_RELEASED:
+                    if (on_threshold != 100) on_threshold += 10;
+                    break;
+                case BUTTON_SW3_RELEASED:
+                    on_threshold = 50;
+                    break;
+                default:
+                    break;
+                }
+            }
+            if (timer_count%100 == 0) timer_count = 0;
+
         }
         
         /* Determine if the Red LED should be on or off */
         /* ADD CODE */
+        if (timer_count < on_threshold) PORT_RGB_RED->OUT_SET = MASK_RGB_RED;
+        else PORT_RGB_RED->OUT_CLR = MASK_RGB_RED;
     }
 }
 #endif

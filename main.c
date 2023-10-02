@@ -20,7 +20,7 @@ int main(void)
     rslt = cybsp_init() ;
     CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
-    printf_init();
+    console_init();
 
     __enable_irq();
 

@@ -17,6 +17,7 @@
 #include "cyhal.h"
 #include "cybsp.h"
 #include "cy_retarget_io.h"
+#include "cyhal_timer.h"
 
 /* Include Stanard C Libraries*/
 #include <ctype.h>

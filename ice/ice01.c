@@ -1,6 +1,6 @@
 /**
  * @file ice07.c
- * @author your name (you@domain.com)
+ * @author Han Lyu (you@domain.com)
  * @brief
  * @version 0.1
  * @date 2023-08-25
@@ -9,6 +9,8 @@
  *
  */
 #include "../main.h"
+#include <string.h>
+#include <ctype.h>
 
 #if defined(ICE) && (FILE_ID == 1)
 /*****************************************************************************/
@@ -44,6 +46,14 @@ void peripheral_init(void)
  */
 void main_app(void)
 {
+
+    printf(" !! Student Name (CAPS):");
+    for (uint16_t i = 0; i < strlen(NAME); i++)
+    {
+        if (NAME[i] >= 'a' && NAME[i] <= 'z') printf("%c", toupper(NAME[i]));
+        else printf("%c", NAME[i]);
+    }
+    printf(" !!\n");
     /* Enter Infinite Loop*/
     while (1)
     {

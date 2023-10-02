@@ -1,6 +1,6 @@
 /**
  * @file ice03.c
- * @author your name (you@domain.com)
+ * @author Han Lyu (you@domain.com)
  * @brief
  * @version 0.1
  * @date 2023-08-25
@@ -37,13 +37,7 @@ char ICE_DESCRIPTION[] = "ECE353: ICE 03 - PSoC6 IO Ports";
 void peripheral_init(void)
 {
     push_buttons_init();
-    cy_rslt_t rslt;
-    rslt = cyhal_gpio_init(P6_2, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_NONE, 0);
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-    rslt = cyhal_gpio_init(P6_3, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_NONE, 0);
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-    rslt = cyhal_gpio_init(P6_4, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_NONE, 0);
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+    leds_init();
 }
 
 /**
@@ -63,40 +57,40 @@ void main_app(void)
             case BUTTON_INACTIVE:
             {
                 /* turn off all LEDS*/
+                /* ADD CODE */
                 PORT_RGB_RED->OUT &= ~MASK_RGB_RED;
                 PORT_RGB_BLU->OUT &= ~MASK_RGB_BLU;
                 PORT_RGB_GRN->OUT &= ~MASK_RGB_GRN;
-                
                 break;
             }
             case BUTTON_SW1_PRESSED:
             {
                 /* Turn RED LED On*/
-                PORT_RGB_RED->OUT |= MASK_RGB_RED;
                 /* Turn other LEDs off*/
+                /* ADD CODE */
+                PORT_RGB_RED->OUT |= MASK_RGB_RED;
                 PORT_RGB_BLU->OUT &= ~MASK_RGB_BLU;
                 PORT_RGB_GRN->OUT &= ~MASK_RGB_GRN;
-                
                 break;
             }
             case BUTTON_SW2_PRESSED:
             {
                 /* Turn Green LED On*/
-                PORT_RGB_GRN->OUT |= MASK_RGB_GRN;
                 /* Turn other LEDs off*/
+                /* ADD CODE */
                 PORT_RGB_RED->OUT &= ~MASK_RGB_RED;
-                PORT_RGB_GRN->OUT &= ~MASK_RGB_GRN;
-
+                PORT_RGB_BLU->OUT &= ~MASK_RGB_BLU;
+                PORT_RGB_GRN->OUT |= MASK_RGB_GRN;
                 break;
             }
             case BUTTON_SW3_PRESSED:
             {
                 /* Turn Blue LED On*/
-                PORT_RGB_BLU->OUT |= MASK_RGB_BLU;
                 /* Turn other LEDs off*/
-                PORT_RGB_RED->OUT &= ~MASK_RGB_RED;
-                PORT_RGB_GRN->OUT &= ~MASK_RGB_GRN;
                 /* ADD CODE */
+                PORT_RGB_RED->OUT &= ~MASK_RGB_RED;
+                PORT_RGB_BLU->OUT |= MASK_RGB_BLU;
+                PORT_RGB_GRN->OUT &= ~MASK_RGB_GRN;
                 break;
             }
             case BUTTON_SW1_RELEASED:
@@ -117,6 +111,7 @@ void main_app(void)
             default:
             {
                 /* turn off all LEDS*/
+                /* ADD CODE */
                 PORT_RGB_RED->OUT &= ~MASK_RGB_RED;
                 PORT_RGB_BLU->OUT &= ~MASK_RGB_BLU;
                 PORT_RGB_GRN->OUT &= ~MASK_RGB_GRN;
