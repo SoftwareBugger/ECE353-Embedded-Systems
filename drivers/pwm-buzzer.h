@@ -19,7 +19,7 @@
 
 #define PIN_IO_BUZZER           P6_2 /*Fix Me*/
 
-#define PWM_BUZZER_FREQ			3500
+#define PWM_BUZZER_FREQ			2500
 #define PWM_BUZZER_DUTY			50
 
 void  pwm_buzzer_init(void);

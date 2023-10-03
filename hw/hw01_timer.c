@@ -49,42 +49,42 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
 {
     CY_UNUSED_PARAMETER(handler_arg);
     CY_UNUSED_PARAMETER(event);
-    static uint8_t ISRcount_SW1 = 0;
+    /* variables to keep track of time length through each Handler Call */
+    static uint8_t ISRcount_SW1 = 0; 
     static uint8_t ISRcount_SW2 = 0;
     static uint8_t ISRcount_SW3 = 0;
     static uint8_t ISRcount_BLK = 0;
     static uint8_t ISRcount_SEC = 0;
-    uint32_t reg_val = PORT_BUTTONS->IN;
+    uint32_t reg_val = PORT_BUTTONS->IN; // read value of push buttons
     ISRcount_SEC = (ISRcount_SEC + 1) % 10;
     ISRcount_BLK = (ISRcount_BLK + 1) % 10;
-    if (ISRcount_BLK == 0) {
+    if (ISRcount_BLK <= 4) { // blinks the clock at 2 hZ rate
         BLK = HW01_ALERT_BLINK;
     }
     else BLK = HW01_ALERT_NONE;
 
-    if (ISRcount_SEC == 0) {
+    if (ISRcount_SEC == 0) { // updates current time at 1 hZ rate
         INC = HW01_ALERT_TIME_UPDATE;
     }
     else INC = HW01_ALERT_NONE;
 
-    if ((reg_val & SW1_MASK) == 0) {
-        ISRcount_SW1++;
-        if (ISRcount_SW1 >= 20) {
+    if ((reg_val & SW1_MASK) == 0) { //SW1 pushed
+        ISRcount_SW1++; // inc count
+        if (ISRcount_SW1 >= 20) { // if count is >= 20 it is considered a long push
             SW1 = HW01_ALERT_BUTTON_GT_2S;
             ISRcount_SW1 = 0;
         }
-
     }
-    else {
+    else { // set other alarm flags based on count, short if 20>count>0, none if count is 0
         if (ISRcount_SW1 < 20 && ISRcount_SW1 > 0) SW1 = HW01_ALERT_BUTTON_LT_2S;
         else if (ISRcount_SW1 >= 20) SW1 = HW01_ALERT_BUTTON_GT_2S;
         else if (ISRcount_SW1 == 0) SW1 = HW01_ALERT_NONE;
         ISRcount_SW1 = 0;
     }
 
-    if ((reg_val & SW2_MASK) == 0) {
+    if ((reg_val & SW2_MASK) == 0) { // SW2 pushed, rest of if and else block is same as SW1
         ISRcount_SW2++;
-        if (ISRcount_SW2 >= 20) {
+        if (ISRcount_SW2 >= 20) { 
             SW2 = HW01_ALERT_BUTTON_GT_2S;
             ISRcount_SW2 = 0;
         }
@@ -96,7 +96,7 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
         ISRcount_SW2 = 0;
     }
 
-    if ((reg_val & SW3_MASK) == 0) {
+    if ((reg_val & SW3_MASK) == 0) { // SW3 pushed, rest of if and else block is same as SW1/2
         ISRcount_SW3++;
         if (ISRcount_SW3 >= 20) {
             SW3 = HW01_ALERT_BUTTON_GT_2S;
