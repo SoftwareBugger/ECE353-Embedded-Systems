@@ -69,31 +69,44 @@ void Handler_HW01_Timer(void *handler_arg, cyhal_timer_event_t event)
 
     if ((reg_val & SW1_MASK) == 0) {
         ISRcount_SW1++;
-        if (ISRcount_SW1 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
+        if (ISRcount_SW1 >= 20) {
+            SW1 = HW01_ALERT_BUTTON_GT_2S;
+            ISRcount_SW1 = 0;
+        }
+
     }
     else {
         if (ISRcount_SW1 < 20 && ISRcount_SW1 > 0) SW1 = HW01_ALERT_BUTTON_LT_2S;
         else if (ISRcount_SW1 >= 20) SW1 = HW01_ALERT_BUTTON_GT_2S;
+        else if (ISRcount_SW1 == 0) SW1 = HW01_ALERT_NONE;
         ISRcount_SW1 = 0;
     }
 
     if ((reg_val & SW2_MASK) == 0) {
         ISRcount_SW2++;
-        if (ISRcount_SW2 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
+        if (ISRcount_SW2 >= 20) {
+            SW2 = HW01_ALERT_BUTTON_GT_2S;
+            ISRcount_SW2 = 0;
+        }
     }
     else {
         if (ISRcount_SW2 < 20 && ISRcount_SW2 > 0) SW2 = HW01_ALERT_BUTTON_LT_2S;
         else if (ISRcount_SW2 >= 20) SW2 = HW01_ALERT_BUTTON_GT_2S;
+        else if (ISRcount_SW2 == 0) SW2 = HW01_ALERT_NONE;
         ISRcount_SW2 = 0;
     }
 
     if ((reg_val & SW3_MASK) == 0) {
         ISRcount_SW3++;
-        if (ISRcount_SW3 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
+        if (ISRcount_SW3 >= 20) {
+            SW3 = HW01_ALERT_BUTTON_GT_2S;
+            ISRcount_SW3 = 0;
+        }
     }
     else {
         if (ISRcount_SW3 < 20 && ISRcount_SW3 > 0) SW3 = HW01_ALERT_BUTTON_LT_2S;
         else if (ISRcount_SW3 >= 20) SW3 = HW01_ALERT_BUTTON_GT_2S;
+        else if (ISRcount_SW3 == 0) SW3 = HW01_ALERT_NONE;
         ISRcount_SW3 = 0;
     }
 
