@@ -180,7 +180,7 @@ void hw01_main_app(void)
                     alarm_sec = (alarm_sec + 1)%60;
                     SW1 = HW01_ALERT_NONE;
                 }
-                break;
+                break; 
         }
     }
 }
