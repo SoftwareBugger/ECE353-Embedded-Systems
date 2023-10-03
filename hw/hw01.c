@@ -67,6 +67,7 @@ void hw01_main_app(void)
     bool set_min = false;
     bool set_alarm = false;
     bool set_alarm_min = false;
+    bool alarm_buzz = false;
     while (1)
     {
         switch (mode) {
@@ -128,6 +129,12 @@ void hw01_main_app(void)
                     INC = HW01_ALERT_NONE;
                 }
                 if (sec == alarm_sec && min == alarm_min && set_alarm) {
+                    pwm_buzzer_start();
+                    alarm_buzz = true;
+                }
+                if (SW1 == HW01_ALERT_BUTTON_GT_2S && set_alarm && alarm_buzz){
+                    pwm_buzzer_stop();
+                    alarm_buzz = false;
                 }
                 hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
                 hw01_display_alarm(alarm_min, alarm_sec, HW01_LCD_ALARM_COLOR);

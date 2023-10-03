@@ -17,7 +17,7 @@
 #include "cyhal.h"
 #include "cybsp.h"
 
-#define PIN_IO_BUZZER           P0_2 /*Fix Me*/
+#define PIN_IO_BUZZER           P6_2 /*Fix Me*/
 
 #define PWM_BUZZER_FREQ			3500
 #define PWM_BUZZER_DUTY			50
