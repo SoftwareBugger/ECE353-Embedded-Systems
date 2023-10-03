@@ -78,8 +78,8 @@ void hw01_main_app(void)
                 /* If sw3 is pressed for more than 2 seconds, change the mode, 
                 and clear the alert status.*/
                 if (SW3 == HW01_ALERT_BUTTON_GT_2S) {
-                    mode = RUN;
                     SW3 = HW01_ALERT_NONE;
+                    mode = RUN;
                     continue;
                 }
                 /* If sw3 is pressed for less than 2 seconds, the incrementor is 
@@ -134,8 +134,8 @@ void hw01_main_app(void)
                 /* If sw3 is hit for more than 2 seconds, the mode is changed to set_alarm
                 and the alerts are cleared.*/
                 if (SW3 == HW01_ALERT_BUTTON_GT_2S) {
-                    mode = SET_ALARM;
                     SW3 = HW01_ALERT_NONE;
+                    mode = SET_ALARM;
                     continue;
                 }
                 /* If sw3 is hit for less than 2 seconds, it toggles the alarm (en/disable)*/
@@ -173,8 +173,8 @@ void hw01_main_app(void)
                 /* If sw3 is held for longer than two seconds, we move to RUN mode, 
                 and the alert is cleared*/
                 if (SW3 == HW01_ALERT_BUTTON_GT_2S) {
-                    mode = RUN;
                     SW3 = HW01_ALERT_NONE;
+                    mode = RUN;
                     continue;
                 }
                 /* If sw3 is held for less than two seconds, the interface toggles between 
