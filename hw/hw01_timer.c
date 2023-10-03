@@ -1,6 +1,8 @@
 /**
  * @file hw01_timer.c
- * @author your name (you@domain.com)
+ * @author Adam Boho (boho2@wisc.edu)
+ * @author Han Lyu  (hlyu42@wisc.edu)
+ * @author Dominic Valentini (dvalentini@wisc.edu)
  * @brief 
  * @version 0.1
  * @date 2023-09-16
