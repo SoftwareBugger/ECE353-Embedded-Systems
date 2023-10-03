@@ -65,6 +65,8 @@ void hw01_main_app(void)
     static int8_t alarm_sec = 0;
     static int8_t alarm_min = 0;
     bool set_min = false;
+    bool set_alarm = false;
+    bool set_alarm_min = false;
     while (1)
     {
         switch (mode) {
@@ -89,7 +91,6 @@ void hw01_main_app(void)
                     hw01_display_alarm(alarm_min, alarm_sec, HW01_LCD_ALARM_COLOR);
                     hw01_erase_bell();
                 }
-                printf("%i\n", SW2);
                 if (set_min && (SW2 != HW01_ALERT_NONE)) {
                     if (min >= 1) min = (min - 1)%3;
                     else min = (min + 2)%3;
@@ -110,16 +111,76 @@ void hw01_main_app(void)
                 }
                 break;
             case RUN:
+                printf("here\n");
+                if (SW3 == HW01_ALERT_BUTTON_GT_2S) {
+                    mode = SET_ALARM;
+                    SW3 = HW01_ALERT_NONE;
+                    continue;
+                }
+                else if (SW3 == HW01_ALERT_BUTTON_LT_2S) {
+                    if (set_alarm) set_alarm = false;
+                    else set_alarm = true;
+                    SW3 = HW01_ALERT_NONE;
+                }
                 if (INC == HW01_ALERT_TIME_UPDATE) {
                     sec = (sec + 1)%60;
                     if (sec == 0) min = (min + 1)%3;
                     INC = HW01_ALERT_NONE;
                 }
+                if (sec == alarm_sec && min == alarm_min && set_alarm) {
+                    pwm_buzzer_start(void);
+                }
                 hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
                 hw01_display_alarm(alarm_min, alarm_sec, HW01_LCD_ALARM_COLOR);
-                hw01_draw_bell();
+                if (set_alarm) hw01_draw_bell();
+                else hw01_erase_bell();
                 break;
             case SET_ALARM:
+                if (SW3 == HW01_ALERT_BUTTON_GT_2S) {
+                    mode = SET_ALARM;
+                    SW3 = HW01_ALERT_NONE;
+                    continue;
+                }
+                else if (SW3 == HW01_ALERT_BUTTON_LT_2S) {
+                    if (set_alarm_min) set_alarm_min = false;
+                    else set_alarm_min = true;
+                    SW3 = HW01_ALERT_NONE;
+                }
+                if (INC == HW01_ALERT_TIME_UPDATE) {
+                    sec = (sec + 1)%60;
+                    if (sec == 0) min = (min + 1)%3;
+                    INC = HW01_ALERT_NONE;
+                }
+                if (BLK == HW01_ALERT_BLINK) {
+                    hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
+                    hw01_display_alarm(alarm_min, alarm_sec, LCD_COLOR_BLACK);
+                    if (set_alarm) hw01_draw_bell();
+                    else hw01_erase_bell();
+                }
+                else {
+                    hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
+                    hw01_display_alarm(alarm_min, alarm_sec, HW01_LCD_ALARM_COLOR);
+                    if (set_alarm) hw01_draw_bell();
+                    else hw01_erase_bell();
+                }
+                if (set_alarm_min && (SW2 != HW01_ALERT_NONE)) {
+                    if (alarm_min >= 1) alarm_min = (alarm_min - 1)%3;
+                    else alarm_min = (alarm_min + 2)%3;
+                    SW2 = HW01_ALERT_NONE;
+                }
+                if (set_alarm_min && (SW1 != HW01_ALERT_NONE)) {
+                    alarm_min = (alarm_min + 1)%3;
+                    SW1 = HW01_ALERT_NONE;
+                }
+                if ((!set_alarm_min) && (SW2 != HW01_ALERT_NONE)) {
+                    if (alarm_sec >= 1) alarm_sec = (alarm_sec - 1)%60;
+                    else alarm_sec = (alarm_sec + 59)%60;
+                    SW2 = HW01_ALERT_NONE;
+                }
+                if ((!set_alarm_min) && (SW1 != HW01_ALERT_NONE)) {
+                    alarm_sec = (alarm_sec + 1)%60;
+                    SW1 = HW01_ALERT_NONE;
+                }
                 break;
         }
     }
