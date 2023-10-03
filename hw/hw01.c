@@ -128,7 +128,6 @@ void hw01_main_app(void)
                     INC = HW01_ALERT_NONE;
                 }
                 if (sec == alarm_sec && min == alarm_min && set_alarm) {
-                    pwm_buzzer_start(void);
                 }
                 hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
                 hw01_display_alarm(alarm_min, alarm_sec, HW01_LCD_ALARM_COLOR);
@@ -137,7 +136,7 @@ void hw01_main_app(void)
                 break;
             case SET_ALARM:
                 if (SW3 == HW01_ALERT_BUTTON_GT_2S) {
-                    mode = SET_ALARM;
+                    mode = RUN;
                     SW3 = HW01_ALERT_NONE;
                     continue;
                 }
