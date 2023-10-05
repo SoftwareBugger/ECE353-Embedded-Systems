@@ -67,7 +67,7 @@ void hw01_main_app(void)
     static int8_t min = 0;
     static int8_t alarm_sec = 0;
     static int8_t alarm_min = 0;
-    bool set_min = false;
+    bool set_min = true;
     bool set_alarm = false;
     bool set_alarm_min = false;
     bool alarm_buzz = false;
@@ -163,8 +163,16 @@ void hw01_main_app(void)
                     pwm_buzzer_stop();
                     alarm_buzz = false;
                 }
+
+                if (alarm_buzz)
+                {
+                    hw01_display_time(min, sec, LCD_COLOR_RED);
+                }
+                else
+                {
+                    hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
+                }               
                 /* This segment displays the time and alarm */
-                hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
                 hw01_display_alarm(alarm_min, alarm_sec, HW01_LCD_ALARM_COLOR);
                 /* If the alarm is set, then display the bell.*/
                 if (set_alarm) hw01_draw_bell();
