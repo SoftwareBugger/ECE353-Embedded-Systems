@@ -20,8 +20,8 @@
 
 /* Analog Pins*/
 /* ADD CODE */
-#define PIN_ANALOG_JOY_X	P0_0
-#define PIN_ANALOG_JOY_Y	P0_0
+#define PIN_ANALOG_JOY_X	P10_6
+#define PIN_ANALOG_JOY_Y	P10_7
 
 /* Custom Data Typtes */
 typedef enum {
