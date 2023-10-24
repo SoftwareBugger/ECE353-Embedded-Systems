@@ -1,5 +1,5 @@
 /**
- * @file console.h
+ * @file ece353.h
  * @author your name (you@domain.com)
  * @brief 
  * @version 0.1
@@ -29,5 +29,18 @@
  * Initialize the UART interface used to print messages to the serial monitor  
  */
 void console_init(void);
+
+/**
+ * @brief 
+ * Returns a string entered from the console 
+ * @param msg 
+ * A pointer to the character array where the string will be written to
+ * @return true
+ * A string was entered at the console.  The string ends when a \n or \r is
+ * received
+ * @return false 
+ * A string has not been received.
+ */
+bool console_rx_string(uint8_t *msg);
 
 #endif

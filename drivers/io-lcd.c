@@ -21,19 +21,25 @@ __STATIC_INLINE void lcd_write_cmd_u8(uint8_t DL)
 
   // Start a transaction to the LCD by setting LCD_CSX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_CSX;
+
   // Indicate this is an instruction by setting the value on the LCD_DCX GPIO Pin
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_DCX;
+
   // Send the 8 bits of the command
   PORT_IO_LCD_DATA->OUT = DL;
 
   // Set the write signal LCD_WRX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_WRX;
+
   // Set the write signal LCD_WRX high
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_WRX;
+
   // Default back to sending a data packet by LCD_DCX GPIO Pin
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_DCX;
+
   // End the transaction to the LCD by setting LCD_CSX high
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_CSX;
+
 }
 
 /*******************************************************************************
@@ -49,8 +55,8 @@ __STATIC_INLINE void  lcd_write_data_u8 (uint8_t x)
 
   // Start a transaction to the LCD by setting LCD_CSX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_CSX;
+
   // Send the 8 bits of data
-  //LCD_DATA  = x;
   PORT_IO_LCD_DATA->OUT = x;
 
   // Set the write signal LCD_WRX low
@@ -81,18 +87,25 @@ __STATIC_INLINE void  lcd_write_data_u16(uint16_t y)
 
   // Start a transaction to the LCD by setting LCD_CSX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_CSX;
+
   // Send the upper 8 bits of the current pixel's color
   PORT_IO_LCD_DATA->OUT = DH;
+
   // Set the write signal LCD_WRX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_WRX;
+
   // Set the write signal LCD_WRX high
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_WRX;
+
   // Send the lower 8 bits of the current pixel's color
   PORT_IO_LCD_DATA->OUT = DL;
+
   // Set the write signal LCD_WRX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_WRX;
+
   // Set the write signal LCD_WRX high
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_WRX;
+
   // End the transaction to the LCD by setting LCD_CSX high
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_CSX;
 
@@ -494,4 +507,63 @@ void ece353_enable_lcd(void)
     lcd_config_screen();
 	  lcd_clear_screen(LCD_COLOR_BLACK);
   }
+}
+
+/*******************************************************************************
+* Function Name: lcd_draw_rectangle_centered
+********************************************************************************
+* Summary: draws a filled rectangle centered at the coordinates set by x, y
+* Returns:
+*  Nothing
+*******************************************************************************/
+void lcd_draw_rectangle_centered(
+  uint16_t x,
+  uint16_t y,
+  uint16_t width_pixels,
+  uint16_t height_pixels,
+  uint16_t fColor
+)
+{
+    uint16_t i,j;
+    uint16_t x0;
+    uint16_t x1;
+    uint16_t y0;
+    uint16_t y1;
+
+    // Set the left Col to be the center point minus half the width
+    x0 = x - (width_pixels/2);
+
+    // Set the Right Col to be the center point plus half the width
+    x1 = x + (width_pixels/2);
+
+    // Account for a width that is an even number
+    if( (width_pixels & 0x01) == 0x00)
+    {
+        x1--;
+    }
+
+    // Set the upper Row to be the center point minus half the height
+    y0 = y  - (height_pixels/2);
+
+    // Set the upper Row to be the center point minus half the height
+    y1 = y  + (height_pixels/2) ;
+
+    // Account for a height that is an  number
+    if( (height_pixels & 0x01) == 0x00)
+    {
+        y1--;
+    }
+
+    // Set the boundry of the image to draw
+    lcd_set_pos(x0, x1, y0, y1);
+
+    // Write out the image data
+    for(i = 0; i < height_pixels; i++)
+    {
+        for(j=0; j < width_pixels; j++)
+        {
+            lcd_write_data_u16(fColor);
+        }
+    }
+
 }

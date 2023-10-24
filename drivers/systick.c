@@ -18,31 +18,25 @@
  */
 void systick_init(uint32_t ticks)
 {
-    if (ticks > 0xFFFFFF) 
-    {
-        // only allowing less than 24 bits for counting
-        return false;
-    }
-    // Turn off Systick timer
     SysTick->CTRL = 0;
-    // Set current value to 0
+
     SysTick->VAL = 0;
-    // Set the period
-    SysTick->LOAD = ticks - 1;
-    // Set the clock source to the main cpu and turn on the timer
+
+    SysTick->LOAD = ticks-1;
+
     SysTick->CTRL = SYSTICK_CTRL_CLKSOURCE | SYSTICK_CTRL_ENABLE;
+
     return true;
 }
 
 
 bool systick_expired(void)
 {
-    // If none zero at 16 bit, the timer has done counting
-    if (SysTick->CTRL & SYSTICK_CTRL_COUNTFLAG) 
+    if ((SysTick->CTRL & SYSTICK_CTRL_COUNTFLAG))
     {
         return true;
     }
-    else 
+    else
     {
         return false;
     }
