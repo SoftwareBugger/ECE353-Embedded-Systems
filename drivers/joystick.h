@@ -20,8 +20,12 @@
 
 /* Analog Pins*/
 /* ADD CODE */
-#define PIN_ANALOG_JOY_X	P0_0
-#define PIN_ANALOG_JOY_Y	P0_0
+#define PIN_ANALOG_JOY_X	P10_6
+#define PIN_ANALOG_JOY_Y	P10_7
+#define JOYSTICK_THRESH_X_LEFT_2p475V 0xBFFF
+#define JOYSTICK_THRESH_X_RIGHT_0p825V 0x4000
+#define JOYSTICK_THRESH_Y_UP_2p475V 0xBFFF
+#define JOYSTICK_THRESH_Y_DOWN_0p825V 0x4000
 
 /* Custom Data Typtes */
 typedef enum {

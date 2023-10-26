@@ -104,6 +104,7 @@ void tic_tac_toe_example_board(void)
 
 // Copy and paste this function into io-lcd.c.  When you have done that, delete this the lines below
 // from this file
+<<<<<<< HEAD
 #if 0
 /*******************************************************************************
 * Function Name: lcd_draw_rectangle_centered
@@ -164,3 +165,5 @@ void lcd_draw_rectangle_centered(
 
 }
 #endif
+=======
+>>>>>>> d6883e5d65aa2d0614f734076f03b3a16009986c

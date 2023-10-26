@@ -88,7 +88,7 @@ __STATIC_INLINE void  lcd_write_data_u16(uint16_t y)
   // Set the write signal LCD_WRX high
   PORT_IO_LCD_CMD->OUT_SET = MASK_IO_LCD_WRX;
   // Send the lower 8 bits of the current pixel's color
-  PORT_IO_LCD_DATA->OUT = DL;
+  PORT_IO_LCD_DATA->OUT = DH + DL;
   // Set the write signal LCD_WRX low
   PORT_IO_LCD_CMD->OUT_CLR = MASK_IO_LCD_WRX;
   // Set the write signal LCD_WRX high
