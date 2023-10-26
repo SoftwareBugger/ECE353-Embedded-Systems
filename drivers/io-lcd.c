@@ -495,3 +495,62 @@ void ece353_enable_lcd(void)
 	  lcd_clear_screen(LCD_COLOR_BLACK);
   }
 }
+
+/*******************************************************************************
+* Function Name: lcd_draw_rectangle_centered
+********************************************************************************
+* Summary: draws a filled rectangle centered at the coordinates set by x, y
+* Returns:
+*  Nothing
+*******************************************************************************/
+void lcd_draw_rectangle_centered(
+  uint16_t x,
+  uint16_t y,
+  uint16_t width_pixels,
+  uint16_t height_pixels,
+  uint16_t fColor
+)
+{
+    uint16_t i,j;
+    uint16_t x0;
+    uint16_t x1;
+    uint16_t y0;
+    uint16_t y1;
+
+    // Set the left Col to be the center point minus half the width
+    x0 = x - (width_pixels/2);
+
+    // Set the Right Col to be the center point plus half the width
+    x1 = x + (width_pixels/2);
+
+    // Account for a width that is an even number
+    if( (width_pixels & 0x01) == 0x00)
+    {
+        x1--;
+    }
+
+    // Set the upper Row to be the center point minus half the height
+    y0 = y  - (height_pixels/2);
+
+    // Set the upper Row to be the center point minus half the height
+    y1 = y  + (height_pixels/2) ;
+
+    // Account for a height that is an  number
+    if( (height_pixels & 0x01) == 0x00)
+    {
+        y1--;
+    }
+
+    // Set the boundry of the image to draw
+    lcd_set_pos(x0, x1, y0, y1);
+
+    // Write out the image data
+    for(i = 0; i < height_pixels; i++)
+    {
+        for(j=0; j < width_pixels; j++)
+        {
+            lcd_write_data_u16(fColor);
+        }
+    }
+
+}
