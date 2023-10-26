@@ -17,7 +17,6 @@
 #include "cyhal.h"
 #include "cybsp.h"
 #include "cy_retarget_io.h"
-#include "cyhal_timer.h"
 
 /* Include Stanard C Libraries*/
 #include <ctype.h>
@@ -31,9 +30,36 @@
 #include "drivers/io-sw.h"
 #include "drivers/io-leds.h"
 #include "drivers/io-lcd.h"
+#include "drivers/joystick.h"
+#include "drivers/remote_uart.h"
+#include "drivers/systick.h"
+#include "drivers/timer.h"
 #include "drivers/pwm-buzzer.h"
-#include "hw/hw01.h"
 
-extern char NAMES[];
+
+#include "hw/hw02.h"
+
+/* This macro is used to determine if we are building an executable for example code or ICE code
+ * 
+ * To choose ICE code, use the following line
+ * #define ICE
+ * 
+ * To choose EXAMPLE code, use the following line
+ * #undef ICE
+*/
+#undef ICE 
+#undef HW01
+#define HW02
+
+/* This macro identifies which ice/example file is being compiled into an executable*/
+#define FILE_ID 12 
+
+#if ! defined(ICE) 
+#define EXAMPLE 
+#else
+#undef EXAMPLE 
+#endif
+
+extern char NAME[];
 
 #endif
