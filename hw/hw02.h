@@ -51,7 +51,18 @@
 #define FG_COLOR_UNCLAIMED        LCD_COLOR_BLACK
 #define BG_COLOR_UNCLAIMED        LCD_COLOR_GREEN
 
+#define JOYSTICK_UP               0xD173
+#define JOYSTICK_DOWN             0x2E8B
+#define JOYSTICK_LEFT             0xD173
+#define JOYSTICK_RIGHT            0x2E8B
+
 extern char HW02_DESCRIPTION[];
+
+typedef struct square {
+    int col;
+    int row;
+    char player;
+} square;
 
 /**
  * @brief 
@@ -64,5 +75,11 @@ void hw02_peripheral_init(void);
  * Implements the main application for HW02 
  */
 void hw02_main_app(void);
+
+void move_active(void);
+void draw_board(void);
+bool is_active(square *sq);
+bool claim_square();
+void board_init(square board[3][3]);
 
 #endif

@@ -64,7 +64,6 @@ int main(void)
     printf("**************************************************\n\r");
 
     hw02_peripheral_init();
-
     hw02_main_app();
 
     for (;;)
