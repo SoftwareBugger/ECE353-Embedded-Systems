@@ -39,7 +39,9 @@ void leds_init(void)
 * Global variables that are used to interact with the PWM peripherals for
 * the 3 pins that control the RGB LED.
 */
-
+cyhal_pwm_t pwm_red_obj;
+cyhal_pwm_t pwm_green_obj;
+cyhal_pwm_t pwm_blue_obj;
 /**
  * @brief 
  *  Initializes the RGB LED pins to be controlled by thier PWM peripherals 
@@ -47,6 +49,12 @@ void leds_init(void)
 void leds_pwm_init(void)
 {
     cy_rslt_t rslt;
+    rslt = cyhal_pwm_init(&pwm_blue_obj, PIN_RGB_BLU, NULL);
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+    rslt = cyhal_pwm_init(&pwm_red_obj, PIN_RGB_RED, NULL);
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+    rslt = cyhal_pwm_init(&pwm_green_obj, PIN_RGB_GRN, NULL);
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
 }
 /*****************************************************************************/

@@ -78,8 +78,8 @@ void joystick_init(void)
 uint16_t  joystick_read_x(void)
 {
     /* ADD CODE */
-    
-    return 0;
+    return cyhal_adc_read_u16(&joystick_adc_chan_x_obj);
+
     }
 
 /** Read Y direction of Joystick 
@@ -89,7 +89,7 @@ uint16_t  joystick_read_x(void)
 uint16_t  joystick_read_y(void)
 {
     /* ADD CODE */
-    return 0;
+    return cyhal_adc_read_u16(&joystick_adc_chan_y_obj);
 }
 
 
@@ -101,7 +101,17 @@ uint16_t  joystick_read_y(void)
  */
 joystick_position_t joystick_get_pos(void)
 {
-    return JOYSTICK_POS_CENTER;
+    uint16_t x = joystick_read_x();
+    uint16_t y = joystick_read_y();
+    if (x > JOYSTICK_THRESH_X_LEFT_2p475V && y > JOYSTICK_THRESH_Y_UP_2p475V) return JOYSTICK_POS_UPPER_LEFT;
+    else if (x > JOYSTICK_THRESH_X_LEFT_2p475V && y < JOYSTICK_THRESH_Y_DOWN_0p825V) return JOYSTICK_POS_LOWER_LEFT;
+    else if (x < JOYSTICK_THRESH_X_RIGHT_0p825V && y > JOYSTICK_THRESH_Y_UP_2p475V) return JOYSTICK_POS_UPPER_RIGHT;
+    else if (x < JOYSTICK_THRESH_X_RIGHT_0p825V && y < JOYSTICK_THRESH_Y_DOWN_0p825V) return JOYSTICK_POS_LOWER_RIGHT;
+    else if (x < JOYSTICK_THRESH_X_RIGHT_0p825V) return JOYSTICK_POS_RIGHT;
+    else if (x > JOYSTICK_THRESH_X_LEFT_2p475V) return JOYSTICK_POS_LEFT;
+    else if (y > JOYSTICK_THRESH_Y_UP_2p475V) return JOYSTICK_POS_UP;
+    else if (y < JOYSTICK_THRESH_Y_DOWN_0p825V) return JOYSTICK_POS_DOWN;
+    else return JOYSTICK_POS_CENTER;
 }
 
 /* ADD CODE */
@@ -113,5 +123,33 @@ joystick_position_t joystick_get_pos(void)
  */
 void joystick_print_pos(joystick_position_t position)
 {
-
+    switch (position) {
+        case JOYSTICK_POS_CENTER:
+            printf("center\n");
+            break;
+        case JOYSTICK_POS_LEFT:
+            printf("left\n");
+            break;
+        case JOYSTICK_POS_RIGHT:
+            printf("right\n");
+            break;
+        case JOYSTICK_POS_UP:
+            printf("up\n");
+            break;
+        case JOYSTICK_POS_DOWN:
+            printf("down\n");
+            break;
+        case JOYSTICK_POS_UPPER_LEFT:
+            printf("upper left\n");
+            break;
+        case JOYSTICK_POS_UPPER_RIGHT:
+            printf("upper right\n");
+            break;
+        case JOYSTICK_POS_LOWER_LEFT:
+            printf("lower left\n");
+            break;
+        case JOYSTICK_POS_LOWER_RIGHT:
+            printf("lower right\n");
+            break;
+    }
 }
