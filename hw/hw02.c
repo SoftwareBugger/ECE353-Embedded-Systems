@@ -39,7 +39,6 @@ void timer_Handler()
 /*****************************************************************************/
 void draw_board(void)
 {
-    printf("here\n");
     // Horizontal Lines
     lcd_draw_rectangle_centered(SCREEN_CENTER_COL, UPPER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
     lcd_draw_rectangle_centered(SCREEN_CENTER_COL, LOWER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
