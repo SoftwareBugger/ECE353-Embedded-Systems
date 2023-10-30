@@ -51,13 +51,14 @@
 #define FG_COLOR_UNCLAIMED        LCD_COLOR_BLACK
 #define BG_COLOR_UNCLAIMED        LCD_COLOR_GREEN
 
+// ADC values
 #define JOYSTICK_UP               0xD173
 #define JOYSTICK_DOWN             0x2E8B
 #define JOYSTICK_LEFT             0xD173
 #define JOYSTICK_RIGHT            0x2E8B
 
 extern char HW02_DESCRIPTION[];
-
+// data structure for the square
 typedef struct square {
     int col;
     int row;
