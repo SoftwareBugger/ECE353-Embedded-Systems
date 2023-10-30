@@ -81,5 +81,7 @@ void draw_board(void);
 bool is_active(square *sq);
 bool claim_square();
 void board_init(square board[3][3]);
+void check_win();
+void game_over_state();
 
 #endif

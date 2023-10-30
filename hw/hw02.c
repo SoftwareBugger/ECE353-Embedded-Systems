@@ -24,6 +24,7 @@ cyhal_timer_cfg_t timer_cfg_hw2;
 square board[3][3];
 int active_sq[2];
 char curr_player = 'x';
+static char starting_player = 'x';
 
 
 /*****************************************************************************/
@@ -33,10 +34,197 @@ void timer_Handler()
 {
     move_active();
     claim_square();
+    
 }
 /*****************************************************************************/
 /*  HW02 Functions                                                           */
 /*****************************************************************************/
+void game_over_state()
+{
+    //__disable_irq();
+    board_init(board);
+    if (starting_player == 'x')
+    {
+        curr_player = 'o';
+        starting_player = 'o';
+    }
+    else
+    {
+        curr_player = 'x';
+        starting_player = 'x';
+    }
+
+    while(1)
+    {
+        if (get_buttons() == BUTTON_SW2_RELEASED)
+        {
+            //__enable_irq();
+            lcd_clear_screen(LCD_COLOR_BLACK);
+            draw_board();
+            break;
+        }
+    }
+}
+void check_win()
+{
+    if (((board[0][0].player == board[1][0].player) && board[0][0].player == board[2][0].player))
+    {
+        switch(board[0][0].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+        else if (((board[0][0].player == board[0][1].player) && board[0][0].player == board[0][2].player))
+    {
+        switch(board[0][0].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+        else if (((board[0][0].player == board[1][1].player) && board[0][0].player == board[2][2].player))
+    {
+        switch(board[0][0].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+        else if (((board[0][1].player == board[1][1].player) && board[0][1].player == board[2][1].player))
+    {
+        switch(board[0][1].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+        else if (((board[0][2].player == board[1][2].player) && board[0][2].player == board[2][2].player))
+    {
+        switch(board[0][2].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;;
+        }
+    }
+        else if (((board[1][0].player == board[1][1].player) && board[1][0].player == board[1][2].player))
+    {
+        switch(board[1][0].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+        else if (((board[2][0].player == board[2][1].player) && board[2][0].player == board[2][2].player))
+    {
+        switch(board[2][0].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+        else if (((board[0][2].player == board[1][1].player) && board[0][2].player == board[2][0].player))
+    {
+        switch(board[0][2].player){
+            case('x'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_X_wins();
+                game_over_state();
+                break;
+            case('o'):
+                lcd_clear_screen(LCD_COLOR_BLACK);
+                lcd_O_wins();
+                game_over_state();
+                break;
+            default:
+                break;
+        }
+    }
+    else
+    {
+        bool full = true;
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if (board[i][j].player == '\0')
+                {
+                    full = false;
+                }
+            }
+        }
+        if (full)
+        {
+            lcd_clear_screen(LCD_COLOR_BLACK);
+            lcd_tie();
+            game_over_state();
+        }
+    }
+}
+
 void draw_board(void)
 {
     // Horizontal Lines
@@ -80,7 +268,7 @@ void draw_board(void)
                     size[1] = O_HEIGHT;
                 }
                 switch (board[i][j].player) {
-                    case 0:
+                    case '\0':
                         lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_UNCLAIMED);
                         lcd_draw_image(board[i][j].col, board[i][j].row, size[0], size[1], map, FG_COLOR_UNCLAIMED, BG_COLOR_UNCLAIMED);
                         break;
@@ -189,6 +377,7 @@ bool claim_square()
             if (curr_player == 'x') curr_player = 'o';
             else curr_player = 'x';
             draw_board();
+            check_win();
             return true;
         }
     }
