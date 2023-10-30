@@ -1,6 +1,8 @@
 /**
  * @file hw02.c
- * @author your name (you@domain.com)
+ * @author Dominic Valentini (dvalentini@wisc.edu)
+ * @author Adam Boho (boho2@wisc.edu)
+ * @author Han Lyu (hlyu42@wisc.edu)
  * @brief
  * @version 0.1
  * @date 2023-09-16
@@ -17,7 +19,7 @@
 /*****************************************************************************/
 /*  Global Variables                                                         */
 /*****************************************************************************/
-char HW02_DESCRIPTION[] = "ECE353: HW02 Name1, Name2";
+char HW02_DESCRIPTION[] = "ECE353: HW02 Dominic Valentini, Adam Boho, Han Lyu";
 cyhal_timer_t timer_obj_hw2;
 cyhal_timer_cfg_t timer_cfg_hw2;
 
