@@ -43,7 +43,6 @@ void timer_Handler()
 /*****************************************************************************/
 void game_over_state()
 {
-    //__disable_irq();
     board_init(board);
     if (starting_player == 'x')
     {
@@ -60,7 +59,6 @@ void game_over_state()
     {
         if (get_buttons() == BUTTON_SW2_RELEASED)
         {
-            //__enable_irq();
             lcd_clear_screen(LCD_COLOR_BLACK);
             draw_board();
             break;
