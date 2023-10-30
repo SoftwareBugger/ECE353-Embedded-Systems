@@ -76,6 +76,7 @@ void hw02_peripheral_init(void);
  */
 void hw02_main_app(void);
 
+// functions used in the hw02
 void move_active(void);
 void draw_board(void);
 bool is_active(square *sq);

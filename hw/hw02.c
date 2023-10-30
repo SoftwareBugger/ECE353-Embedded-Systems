@@ -34,6 +34,7 @@ static char starting_player = 'x';
 /*****************************************************************************/
 void timer_Handler()
 {
+    // the timer handler moves active square and claims new square
     move_active();
     claim_square();
     
@@ -41,8 +42,14 @@ void timer_Handler()
 /*****************************************************************************/
 /*  HW02 Functions                                                           */
 /*****************************************************************************/
+
+/**
+ * @brief define the behavior when the game is over
+ * 
+ */
 void game_over_state()
 {
+    // reinitialize the board if the game is over, also switch order of the two players
     board_init(board);
     if (starting_player == 'x')
     {
@@ -54,7 +61,7 @@ void game_over_state()
         curr_player = 'x';
         starting_player = 'x';
     }
-
+    // when button two is pressed, start a new game by clearing the screen and redraw the board
     while(1)
     {
         if (get_buttons() == BUTTON_SW2_RELEASED)
@@ -65,8 +72,13 @@ void game_over_state()
         }
     }
 }
+/**
+ * @brief check if there is a winner or a tie
+ * 
+ */
 void check_win()
 {
+    // check if there is a winner in the first row
     if (((board[0][0].player == board[1][0].player) && board[0][0].player == board[2][0].player))
     {
         switch(board[0][0].player){
@@ -84,6 +96,7 @@ void check_win()
                 break;
         }
     }
+    // check the first column
         else if (((board[0][0].player == board[0][1].player) && board[0][0].player == board[0][2].player))
     {
         switch(board[0][0].player){
@@ -101,6 +114,7 @@ void check_win()
                 break;
         }
     }
+        // check the diagonal line
         else if (((board[0][0].player == board[1][1].player) && board[0][0].player == board[2][2].player))
     {
         switch(board[0][0].player){
@@ -118,6 +132,7 @@ void check_win()
                 break;
         }
     }
+        // check the second row
         else if (((board[0][1].player == board[1][1].player) && board[0][1].player == board[2][1].player))
     {
         switch(board[0][1].player){
@@ -135,6 +150,7 @@ void check_win()
                 break;
         }
     }
+        // check the third row
         else if (((board[0][2].player == board[1][2].player) && board[0][2].player == board[2][2].player))
     {
         switch(board[0][2].player){
@@ -152,6 +168,7 @@ void check_win()
                 break;;
         }
     }
+        // check the second column
         else if (((board[1][0].player == board[1][1].player) && board[1][0].player == board[1][2].player))
     {
         switch(board[1][0].player){
@@ -169,6 +186,7 @@ void check_win()
                 break;
         }
     }
+        // check the third column
         else if (((board[2][0].player == board[2][1].player) && board[2][0].player == board[2][2].player))
     {
         switch(board[2][0].player){
@@ -186,6 +204,7 @@ void check_win()
                 break;
         }
     }
+        // check the other diagonal line
         else if (((board[0][2].player == board[1][1].player) && board[0][2].player == board[2][0].player))
     {
         switch(board[0][2].player){
@@ -203,6 +222,7 @@ void check_win()
                 break;
         }
     }
+    // no winner check for a tie
     else
     {
         bool full = true;
@@ -225,6 +245,10 @@ void check_win()
     }
 }
 
+/**
+ * @brief draw the board on the LCD screen
+ * 
+ */
 void draw_board(void)
 {
     // Horizontal Lines
@@ -235,8 +259,10 @@ void draw_board(void)
     lcd_draw_rectangle_centered(LEFT_HORIZONTAL_LINE_X, SCREEN_CENTER_ROW, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
     lcd_draw_rectangle_centered(RIGHT_HORIZONTAL_LINE_X, SCREEN_CENTER_ROW, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
 
+    // draw the square according to their status
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
+            // in case when the square is not active
             if (!is_active(&board[i][j])) {
                 switch (board[i][j].player) {
                     case '\0':
@@ -254,6 +280,7 @@ void draw_board(void)
                 }
                 
             }
+            // when the square is active
             else {
                 uint8_t *map;
                 uint8_t size[2];
@@ -283,18 +310,20 @@ void draw_board(void)
     }
 }
 /**
- * @brief
- * moves the active square
+ * @brief moves the active square
  */
 void move_active(void)
 {
+    // variables that hold the values of the joystick
     static uint16_t x = 0;
     static uint16_t y = 0;
+    // if not at center position before, reread
     if (x > JOYSTICK_LEFT || x < JOYSTICK_RIGHT || y > JOYSTICK_UP || y < JOYSTICK_DOWN) {
         x = joystick_read_x();
         y = joystick_read_y();
         return;
     }
+    // read the value and move active square
     else {
         x = joystick_read_x();
         y = joystick_read_y();
@@ -326,8 +355,14 @@ void move_active(void)
     }
 }
 
+/**
+ * @brief initialize the board
+ * 
+ * @param board 
+ */
 void board_init(square board[3][3])
 {
+    // all squares have no player
     for (int i = 0; i < 3; i++) 
     {
         for (int j = 0; j < 3; j++)
@@ -335,7 +370,7 @@ void board_init(square board[3][3])
             board[i][j].player = '\0';
         }
     }
-
+    // the coordinates on the LCD are fixed for each square
     board[0][0].col = LEFT_COL;
     board[0][0].row = UPPER_ROW;
     
@@ -363,13 +398,21 @@ void board_init(square board[3][3])
     board[2][2].col = RIGHT_COL;
     board[2][2].row = LOWER_ROW;
 
+    // the active square starts at the center
     active_sq[0] = 1;
     active_sq[1] = 1;
 
 }
 
+/**
+ * @brief claim a square on the board
+ * 
+ * @return true when the claim is successful
+ * @return false when the claim failed
+ */
 bool claim_square()
 {
+    // button 1 pressed, try to claim
     if (get_buttons() == BUTTON_SW1_PRESSED) {
         if (board[active_sq[0]][active_sq[1]].player != '\0') return false;
         else {
@@ -412,6 +455,7 @@ bool is_active(square *sq) {
  */
 void hw02_main_app(void)
 {
+    // only initialize the borad and draw it for the first time, leave other jobs to the timer handler
     board_init(board);
     draw_board();
     while(1)
