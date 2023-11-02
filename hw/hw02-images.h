@@ -29,4 +29,12 @@ extern const uint8_t o_WinsBitmaps[];
 extern const uint8_t o_WinsWidthPixels;
 extern const uint8_t o_WinsHeightPixels;
 
+extern const uint8_t SelectPlayer1Bitmaps[] ;
+extern const uint8_t SelectPlayer1WidthPixels;
+extern const uint8_t SelectPlayer1HeightPixels;
+
+extern const uint8_t WaitForOtherPlayerBitmaps[];
+extern const uint8_t WaitForOtherPlayerWidthPixels;
+extern const uint8_t WaitForOtherPlayerHeightPixels;
+
 #endif

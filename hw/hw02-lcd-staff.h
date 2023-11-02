@@ -19,6 +19,10 @@ void tic_tac_toe_example_board(void);
 void lcd_X_wins(void);
 void lcd_O_wins(void);
 void lcd_tie(void);
+void lcd_select_player1(void);
+void lcd_wait_for_other_player(void);
+void lcd_clear_other_player(void);
+void tic_tac_toe_draw_grid(void);
 void tic_tac_toe_example_board(void);
 
 void lcd_draw_rectangle_centered(

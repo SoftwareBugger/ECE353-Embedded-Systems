@@ -69,6 +69,83 @@ void lcd_tie(void)
 }
 
 /*******************************************************************************
+ * Function Name: lcd_select_player1
+ ********************************************************************************
+ * Summary: Prints splash screen that the device is waiting for the user to press
+ *          the button to choose which board is player 1 
+ * Returns:
+ *  Nothing
+ *******************************************************************************/
+void lcd_select_player1(void)
+{
+    lcd_clear_screen(LCD_COLOR_BLACK);
+
+    lcd_draw_image(
+        SCREEN_X / 2,
+        SCREEN_Y / 2,
+        SelectPlayer1WidthPixels,
+        SelectPlayer1HeightPixels,
+        SelectPlayer1Bitmaps,
+        LCD_COLOR_GREEN,
+        LCD_COLOR_BLACK);
+}
+
+/*******************************************************************************
+ * Function Name: lcd_
+ ********************************************************************************
+ * Summary: Prints splash screen that the device is waiting for the other player
+ *          to claim a square
+ * Returns:
+ *  Nothing
+ *******************************************************************************/
+void lcd_wait_for_other_player(void)
+{
+    lcd_draw_image(
+        SCREEN_X / 2,
+        40,
+        WaitForOtherPlayerWidthPixels,
+        WaitForOtherPlayerHeightPixels,
+        WaitForOtherPlayerBitmaps,
+        LCD_COLOR_GRAY,
+        LCD_COLOR_BLACK);
+}
+
+/*******************************************************************************
+ * Function Name: lcd_
+ ********************************************************************************
+ * Summary: Prints splash screen that the device is waiting for the other player
+ *          to claim a square
+ * Returns:
+ *  Nothing
+ *******************************************************************************/
+void lcd_clear_other_player(void)
+{
+    lcd_draw_image(
+        SCREEN_X / 2,
+        40,
+        WaitForOtherPlayerWidthPixels,
+        WaitForOtherPlayerHeightPixels,
+        WaitForOtherPlayerBitmaps,
+        LCD_COLOR_BLACK,
+        LCD_COLOR_BLACK);
+}
+
+/*******************************************************************************
+ * Function Name: tic_tac_toe_draw_grid
+ ********************************************************************************
+ * Summary: Displays the lines for the tic tac toe game
+ * Returns:
+ *  Nothing
+ ********************************************************************************/
+void tic_tac_toe_draw_grid(void)
+{
+    lcd_draw_rectangle_centered(SCREEN_CENTER_COL, UPPER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
+    lcd_draw_rectangle_centered(SCREEN_CENTER_COL, LOWER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
+    lcd_draw_rectangle_centered(LEFT_VERTICAL_LINE_X, SCREEN_CENTER_ROW + 20, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
+    lcd_draw_rectangle_centered(RIGHT_VERTICAL_LINE_X, SCREEN_CENTER_ROW + 20, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
+}
+
+/*******************************************************************************
  * Function Name: tic_tac_toe_example_board
  ********************************************************************************
  * Summary: Prints out an example of what the tic-tac-toe board looks like
@@ -77,14 +154,8 @@ void lcd_tie(void)
  *******************************************************************************/
 void tic_tac_toe_example_board(void)
 {
-
-    // Horizontal Lines
-    lcd_draw_rectangle_centered(SCREEN_CENTER_COL, UPPER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
-    lcd_draw_rectangle_centered(SCREEN_CENTER_COL, LOWER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
-
-    // Vertical Lines
-    lcd_draw_rectangle_centered(LEFT_HORIZONTAL_LINE_X, SCREEN_CENTER_ROW, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
-    lcd_draw_rectangle_centered(RIGHT_HORIZONTAL_LINE_X, SCREEN_CENTER_ROW, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
+    /* Print out the grid */
+    tic_tac_toe_draw_grid();
 
     // Top Row
     lcd_draw_image(LEFT_COL, UPPER_ROW, O_WIDTH, O_HEIGHT, Bitmaps_O, LCD_COLOR_RED, LCD_COLOR_BLACK);
