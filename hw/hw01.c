@@ -156,11 +156,13 @@ void hw01_main_app(void)
                 /* If the values of the alarm and the clock are the same, then buzz the alarm.*/
                 if (sec == alarm_sec && min == alarm_min && set_alarm) {
                     pwm_buzzer_start();
+                    hw01_display_time(min, sec, LCD_COLOR_RED);
                     alarm_buzz = true;
                 }
                 /* If sw1 is hit for more than 2 seconds while the alarm is buzzing, the alarm stops.*/
                 if (SW1 == HW01_ALERT_BUTTON_GT_2S && set_alarm && alarm_buzz){
                     pwm_buzzer_stop();
+                    hw01_display_time(min, sec, HW01_LCD_TIME_COLOR);
                     alarm_buzz = false;
                 }
 

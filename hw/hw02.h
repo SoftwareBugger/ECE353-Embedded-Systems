@@ -51,13 +51,14 @@
 #define FG_COLOR_UNCLAIMED        LCD_COLOR_BLACK
 #define BG_COLOR_UNCLAIMED        LCD_COLOR_GREEN
 
+// ADC values
 #define JOYSTICK_UP               0xD173
 #define JOYSTICK_DOWN             0x2E8B
 #define JOYSTICK_LEFT             0xD173
 #define JOYSTICK_RIGHT            0x2E8B
 
 extern char HW02_DESCRIPTION[];
-
+// data structure for the square
 typedef struct square {
     int col;
     int row;
@@ -76,6 +77,7 @@ void hw02_peripheral_init(void);
  */
 void hw02_main_app(void);
 
+// functions used in the hw02
 void move_active(void);
 void draw_board(void);
 bool is_active(square *sq);
