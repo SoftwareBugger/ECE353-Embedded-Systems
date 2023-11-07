@@ -188,11 +188,11 @@ void receive_from_remote(uint8_t *msg)
     cy_rslt_t rslt = cyhal_uart_getc(&remote_uart_obj, msg, 0); 
     CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
-    bool rslt = remote_uart_rx_data_async(msg, 8);
-    if (rslt == false)
-    {
-        return 0xFF;
-    }
+    // bool rslt = remote_uart_rx_data_async(msg, 8);
+    // if (rslt == false)
+    // {
+    //     return 0xFF;
+    // }
 }
 
 /**
