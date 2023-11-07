@@ -147,6 +147,7 @@ void wait_for_ack()
 
 void player_one_sel()
 {   
+    __disable_irq();
     lcd_clear_screen(LCD_COLOR_BLACK);
     lcd_select_player1();
     uint8_t msg;
@@ -168,16 +169,17 @@ void player_one_sel()
             starting_char_sel();
         }
     }
+    __enable_irq();
 }
 
 
 void send_to_remote(uint8_t msg)
 {
     // I think these will get changed to functions from remote_uart_tx.c - currently placeholder
-    cy_rslt_t rslt = cyhal_uart_putc(&remote_uart_obj, msg);
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+    // cy_rslt_t rslt = cyhal_uart_putc(&remote_uart_obj, msg);
+    // CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
-    // remote_uart_tx_data_async(&msg);
+    remote_uart_tx_data_async(&msg);
 
 
 }
@@ -185,14 +187,14 @@ void send_to_remote(uint8_t msg)
 void receive_from_remote(uint8_t *msg)
 {
     // I think these will get changed to functions from remote_uart_rx.c - currently placeholder
-    cy_rslt_t rslt = cyhal_uart_getc(&remote_uart_obj, msg, 0); 
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+    // cy_rslt_t rslt = cyhal_uart_getc(&remote_uart_obj, msg, 0); 
+    // CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
-    // bool rslt = remote_uart_rx_data_async(msg, 8);
-    // if (rslt == false)
-    // {
-    //     return 0xFF;
-    // }
+    bool rslt = remote_uart_rx_data_async(msg, 8);
+    if (rslt == false)
+    {
+        return 0xFF;
+    }
 }
 
 /**
@@ -560,9 +562,7 @@ bool claim_square()
         if (board[active_sq[0]][active_sq[1]].player != '\0') return false;
         else {
             board[active_sq[0]][active_sq[1]].player = curr_player;
-            int i = active_sq[0];
-            int j = active_sq[1];
-            uint8_t msg = (i << 4) + j;
+            uint8_t msg = (active_sq[0] << 4) + active_sq[1];
             send_to_remote(msg);
             wait_for_ack();
             if (curr_player == 'x') curr_player = 'o';
