@@ -57,6 +57,12 @@
 #define JOYSTICK_LEFT             0xD173
 #define JOYSTICK_RIGHT            0x2E8B
 
+// UART BYTES
+#define PLAYER1_SELECTION         0x5A
+#define ACK_BYTE                  0xF0
+#define X_SELECTION               0x58
+#define Y_SELECTION               0x4F
+
 extern char HW02_DESCRIPTION[];
 // data structure for the square
 typedef struct square {
@@ -85,5 +91,12 @@ bool claim_square();
 void board_init(square board[3][3]);
 void check_win();
 void game_over_state();
+void send_to_remote(uint8_t msg);
+void receive_from_remote(uint8_t *msg);
+void send_ack_byte();
+void wait_for_ack();
+void player_one_sel();
+void starting_char_sel();
+void wait_for_turn();
 
 #endif

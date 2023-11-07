@@ -23,10 +23,12 @@ char HW02_DESCRIPTION[] = "ECE353: HW02 Dominic Valentini, Adam Boho, Han Lyu";
 cyhal_timer_t timer_obj_hw2;
 cyhal_timer_cfg_t timer_cfg_hw2;
 
+extern cyhal_uart_t remote_uart_obj;
+
 square board[3][3];
 int active_sq[2];
 char curr_player = 'x';
-static char starting_player = 'x';
+bool player_one;
 
 
 /*****************************************************************************/
@@ -42,6 +44,156 @@ void timer_Handler()
 /*****************************************************************************/
 /*  HW02 Functions                                                           */
 /*****************************************************************************/
+void wait_for_turn()
+{
+    __disable_irq();
+    draw_board();
+    lcd_wait_for_other_player();
+    uint8_t msg;
+    receive_from_remote(&msg);
+    while (msg != 0x00 && msg != 0x01 && msg != 0x02 && 
+    msg != 0x10 && msg != 0x11 && msg != 0x12 &&
+    msg != 0x20 && msg != 0x21 && msg != 0x22)
+    {
+        receive_from_remote(&msg);
+    }
+        int i = (msg & 0x03);
+        int j = ((msg & 0x30) >> 4);
+        board[i][j].player = curr_player;
+        draw_board();
+        if (curr_player == 'x')
+        {
+            curr_player = 'y';
+        }
+        else
+        {
+            curr_player = 'x';
+        }
+        __enable_irq();
+}
+
+void starting_char_sel()
+{
+    if (player_one)
+    {
+        while(get_buttons() != BUTTON_SW2_RELEASED)
+        {
+            if (get_buttons() == BUTTON_SW1_RELEASED)
+            {
+                if (curr_player == 'x')
+                {
+                    curr_player = 'o';
+                    draw_board();
+                }
+                else
+                {
+                    curr_player = 'x';
+                    draw_board();
+                }
+            }
+        }
+        if (curr_player == 'x')
+        {
+            send_to_remote(X_SELECTION);
+            wait_for_ack();
+        }
+        else
+        {
+            send_to_remote(Y_SELECTION);
+            wait_for_ack();
+        }   
+    }
+
+    else
+    {
+        uint8_t msg;
+        tic_tac_toe_draw_grid();
+        lcd_wait_for_other_player();
+        receive_from_remote(&msg);
+        while(msg != X_SELECTION && msg != Y_SELECTION)
+        {
+            receive_from_remote(&msg);
+        }
+        if (msg == X_SELECTION)
+        {
+            curr_player = 'x';
+            send_ack_byte();
+            wait_for_turn();
+        }
+        else if (msg == Y_SELECTION)
+        {
+            curr_player = 'o';
+            send_ack_byte();
+            wait_for_turn();
+        }
+    }
+    
+}
+
+void send_ack_byte()
+{
+    send_to_remote(ACK_BYTE);
+}
+
+void wait_for_ack()
+{
+    uint8_t msg;
+    receive_from_remote(&msg);
+    while(msg != ACK_BYTE)
+    {
+        receive_from_remote(&msg);
+    }
+}
+
+void player_one_sel()
+{   
+    lcd_clear_screen(LCD_COLOR_BLACK);
+    lcd_select_player1();
+    uint8_t msg;
+    receive_from_remote(&msg);
+    while(get_buttons() != BUTTON_SW2_RELEASED && msg != PLAYER1_SELECTION)
+    {
+        receive_from_remote(&msg);
+        if (get_buttons() ==  BUTTON_SW2_RELEASED)
+        {
+            send_to_remote(PLAYER1_SELECTION);
+            player_one = true;;
+            wait_for_ack();
+            starting_char_sel();
+        }
+        else if (msg == PLAYER1_SELECTION)
+        {
+            send_ack_byte();
+            player_one = false;
+            starting_char_sel();
+        }
+    }
+}
+
+
+void send_to_remote(uint8_t msg)
+{
+    // I think these will get changed to functions from remote_uart_tx.c - currently placeholder
+    cy_rslt_t rslt = cyhal_uart_putc(&remote_uart_obj, msg);
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+
+    // remote_uart_tx_data_async(&msg);
+
+
+}
+
+void receive_from_remote(uint8_t *msg)
+{
+    // I think these will get changed to functions from remote_uart_rx.c - currently placeholder
+    cy_rslt_t rslt = cyhal_uart_getc(&remote_uart_obj, msg, 0); 
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+
+    bool rslt = remote_uart_rx_data_async(msg, 8);
+    if (rslt == false)
+    {
+        return 0xFF;
+    }
+}
 
 /**
  * @brief define the behavior when the game is over
@@ -51,22 +203,13 @@ void game_over_state()
 {
     // reinitialize the board if the game is over, also switch order of the two players
     board_init(board);
-    if (starting_player == 'x')
-    {
-        curr_player = 'o';
-        starting_player = 'o';
-    }
-    else
-    {
-        curr_player = 'x';
-        starting_player = 'x';
-    }
     // when button two is pressed, start a new game by clearing the screen and redraw the board
     while(1)
     {
         if (get_buttons() == BUTTON_SW2_RELEASED)
         {
             lcd_clear_screen(LCD_COLOR_BLACK);
+            player_one_sel();
             draw_board();
             break;
         }
@@ -417,10 +560,16 @@ bool claim_square()
         if (board[active_sq[0]][active_sq[1]].player != '\0') return false;
         else {
             board[active_sq[0]][active_sq[1]].player = curr_player;
+            int i = active_sq[0];
+            int j = active_sq[1];
+            uint8_t msg = (i << 4) + j;
+            send_to_remote(msg);
+            wait_for_ack();
             if (curr_player == 'x') curr_player = 'o';
             else curr_player = 'x';
             draw_board();
             check_win();
+            wait_for_turn();
             return true;
         }
     }
@@ -442,7 +591,7 @@ void hw02_peripheral_init(void)
     joystick_init();
 
     /* Initialize the remote UART */
-    //remote_uart_init();
+    remote_uart_init();
     /* Initialize Timer to generate interrupts every 100mS*/
     timer_init(&timer_obj_hw2, &timer_cfg_hw2, 10000000, timer_Handler);
 }
@@ -457,6 +606,7 @@ void hw02_main_app(void)
 {
     // only initialize the borad and draw it for the first time, leave other jobs to the timer handler
     board_init(board);
+    player_one_sel();
     draw_board();
     while(1)
     {

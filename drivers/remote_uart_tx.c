@@ -34,16 +34,28 @@ Circular_Buffer *Tx_Circular_Buffer;
 void remote_uart_tx_char_async(char c)
 {
     /* ADD CODE */
+    if (c == NULL)
+    {
+        return;
+    }
 
     /* Wait while the circular buffer is full*/
+    while (circular_buffer_full(Tx_Circular_Buffer))
+    {
+        continue;
+    }
 
     /* Disable interrupts -- Disable NVIC */
+    __disable_irq();
     
     /* Add the current character*/
+    circular_buffer_add(Tx_Circular_Buffer, c);
 
     /* Re-enable interrupts */
+    __enable_irq();
     
     /* Enable the Transmit Empty Interrupts*/
+    cyhal_uart_enable_event(&remote_uart_obj, CYHAL_UART_IRQ_TX_EMPTY, 7, true);
 }
 
 /**
@@ -57,22 +69,35 @@ void remote_uart_tx_data_async(char *msg)
     /* ADD CODE */
 
     /* check to see that msg pointer is not equal to NULL*/
+    if (msg == NULL)
+    {
+        return;
+    }
 
     /* Add characters to the circular buffer until we reach the NULL character*/
     while (*msg != 0)
     {
         /* Wait while the circular buffer is full*/
+        while(circular_buffer_full(Tx_Circular_Buffer))
+        {
+            continue;
+        }
 
         /* Disable interrupts -- Disable NVIC */
+        __disable_irq();
 
         /* Add the current character*/
+        circular_buffer_add(Tx_Circular_Buffer, *msg);
 
         /* Re-enable interrupts */
+        __enable_irq();
 
         /* Go to the next character*/
+        msg++;
     }
 
     /* Enable the Transmit Empty Interrupts*/
+    cyhal_uart_enable_event(&remote_uart_obj, (cyhal_uart_event_t)CYHAL_UART_IRQ_TX_EMPTY, 7, true);
 }
 
 /**
@@ -83,8 +108,10 @@ void remote_uart_tx_data_async(char *msg)
 void remote_uart_tx_interrupts_init(void)
 {
     /* Initialize the Tx Circular Buffer */
+    Tx_Circular_Buffer = circular_buffer_init(TX_BUFFER_SIZE);
 
     /* Turn Off Tx Interrupts*/
+    cyhal_uart_enable_event(&remote_uart_obj, (cyhal_uart_event_t)CYHAL_UART_IRQ_TX_EMPTY, 7, false);
 }
 
 /**
@@ -95,7 +122,7 @@ void remote_uart_event_handler_process_tx(void)
 {
     /* The UART finished transfering data, so check and see if
      * the circular buffer is empty*/
-    if (1 /* ADD CODE */)
+    if (circular_buffer_empty(Tx_Circular_Buffer))
     {
         /* No More data to send, so disable Tx Empty Interrupts
          * to avoid the UART handler from constantly being
@@ -103,9 +130,14 @@ void remote_uart_event_handler_process_tx(void)
          */
 
         /* Disable the Transmit Empty Interrupts*/
+        cyhal_uart_enable_event(&remote_uart_obj, CYHAL_UART_IRQ_TX_EMPTY, 7, false);
     }
     else
     {
         /* Transmit the next character in the circular buffer */
+        char c = circular_buffer_remove(Tx_Circular_Buffer);
+        cyhal_uart_putc(&remote_uart_obj, c);
+        return;
+
     }
 }
