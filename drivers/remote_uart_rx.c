@@ -38,32 +38,21 @@ bool remote_uart_rx_data_async(char *msg, uint16_t max_size)
     /* ADD CODE */
 
     /* If the msg pointer is NULL, return false*/
-    if (msg == NULL)
-    {
-        return false;
-    }
-
+    if (msg == NULL) return false;
     /* If the circular buffer is empty, return false */
-    if (circular_buffer_empty(Rx_Circular_Buffer))
-    {
-        return false;
-    }
-
+    if (circular_buffer_empty(Rx_Circular_Buffer)) return false;
     /* Disable interrupts -- Disable NVIC */
     __disable_irq();
-
     /* Grab characters from the circular buffer until the buffer
      *  is empty OR the maximum number of characters are copied*/
-    int i = 0;
-    while(!circular_buffer_empty(Rx_Circular_Buffer) && i < max_size)
+    int num = 0;
+    while (!circular_buffer_empty(Rx_Circular_Buffer) && num < max_size) 
     {
-            msg[i] = circular_buffer_remove(Rx_Circular_Buffer);
-            i++;
+        msg[num] = circular_buffer_remove(Rx_Circular_Buffer);
+        num++;
     }
-
     /* Re-enable interrupts -- Enable NVIC */
     __enable_irq();
-
     /* Return true */
     return true;
 }
@@ -79,9 +68,10 @@ void remote_uart_rx_interrupts_init(void)
     /* ADD CODE */
 
     /* Initialize Rx_Circular_Buffer */
-    Rx_Circular_Buffer = circular_buffer_init(Rx_Circular_Buffer->max_size);
+    Rx_Circular_Buffer = circular_buffer_init(80);
     /* Turn on Rx interrupts */
     cyhal_uart_enable_event(&remote_uart_obj, CYHAL_UART_IRQ_RX_NOT_EMPTY, 7, true);
+    
 }
 
 /**
@@ -91,26 +81,14 @@ void remote_uart_rx_interrupts_init(void)
 void remote_uart_event_handler_process_rx(void)
 {
     cy_rslt_t status;
-    uint8_t temp;
 
     /* ADD CODE to receive a character using the HAL UART API */
-    status = cyhal_uart_getc(&remote_uart_obj, &temp, 0);
-    if (status != CY_RSLT_SUCCESS)
-    {
-        return;
-    }
-
+    char c;
+    cyhal_uart_getc(&remote_uart_obj, &c, 1);
     /* check for the end of a message to set the alert variable*/
-    if (temp == '\n' || temp == '\r')
-    {
-        ALERT_UART_RX = true;
-    }
+    if (c == '\n' || c == '\r') ALERT_UART_RX = true;
     /* Add the character to the circular buffer if not the 
      * of the message
      */
-    else
-    {
-        circular_buffer_add(Rx_Circular_Buffer, temp);
-    }
-    
+    circular_buffer_add(Rx_Circular_Buffer, c);
 }

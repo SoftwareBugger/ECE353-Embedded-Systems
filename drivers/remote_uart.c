@@ -1,6 +1,6 @@
 /**
  * @file remote_uart.c
- * @author your name (you@domain.com)
+ * @author Dominic Valentini (dvalentini@wisc.edu)
  * @brief
  * @version 0.1
  * @date 2023-08-30
@@ -45,16 +45,19 @@ void remote_uart_tx_string_polling(uint8_t *msg)
     /* ADD CODE */
 
     /* check to see that msg pointer is not equal to NULL*/
-    if (msg != NULL)
+    if (msg == NULL)
     {
-        uint8_t i = 0;
-        while (msg[i] != '\0') 
-        {
-            cyhal_uart_putc(&remote_uart_obj, msg[i]);
-            i++;
-        }
+        return;
     }
+    uint8_t index = 0;
     /* Use the HAL api to print out 1 character at a time until the NULL charcter is found*/
+    while(msg[index] != NULL)
+    {
+        cyhal_uart_putc(&remote_uart_obj, msg[index]);
+        index++;
+    }
+    
+    
 }
 
 /**
@@ -71,33 +74,30 @@ bool remote_uart_rx_string_polling(uint8_t *msg)
     static uint8_t buffer_index = 0;
     cy_rslt_t rslt;
     bool return_value = false;
+
     uint8_t c;
 
     /* Check to see if there is a new character from the console*/
     /* Wait for 1ms if no character has been received */
     rslt = cyhal_uart_getc(&remote_uart_obj, &c, 1);
+
     if (rslt == CY_RSLT_SUCCESS)
     {
         /* Add the current character to the message*/
         temp_buffer[buffer_index] = c;
-        /* If the character returned is a \n, return true*/
-            /* Copy the message to the destination address*/
-            
-            /* Erase all characters and reset the index */
-        if (c == '\n' || c == '\r') 
+        buffer_index++;
+        
+        /* If the character returned is a \n, copy the string to msg and return true*/
+        if (c == '\n')
         {
-            temp_buffer[buffer_index] = 0;
+            temp_buffer[buffer_index-1] = '\0';
             strcpy(msg, temp_buffer);
-            // next time the function is called the index is 0
+            memset(temp_buffer, '\0', buffer_index);
             buffer_index = 0;
             return_value = true;
         }
-        else
-        {
-            buffer_index++;
-        }
-
     }
+
     return return_value;
 }
 
@@ -112,7 +112,6 @@ void remote_uart_event_handler(void *handler_arg, cyhal_uart_event_t event)
     (void)handler_arg;
     cy_rslt_t status;
     char c;
-
     if ((event & CYHAL_UART_IRQ_TX_ERROR) == CYHAL_UART_IRQ_TX_ERROR)
     {
         /* An error occurred in Tx */
@@ -142,7 +141,7 @@ void remote_uart_enable_interrupts(void)
     remote_uart_rx_interrupts_init();
 
     /* Initialize Tx Circular Buffer, Tx_Empty Interrupts are turned off initially */
-    // remote_uart_tx_interrupts_init();
+    remote_uart_tx_interrupts_init();
 }
 
 /**

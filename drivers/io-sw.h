@@ -37,7 +37,7 @@
 #define ADDR_REG_PUSH_BUTTON_IN     0x40310310      // MODIFY
 #define REG_PUSH_BUTTON_IN          (*(volatile uint32_t *)(ADDR_REG_PUSH_BUTTON_IN))
 
-#define PORT_BUTTONS                GPIO_PRT6       // MODIFY
+#define PORT_BUTTONS                GPIO_PRT6     // MODIFY
 
 typedef enum {
     BUTTON_INACTIVE,

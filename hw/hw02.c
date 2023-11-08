@@ -24,11 +24,15 @@ cyhal_timer_t timer_obj_hw2;
 cyhal_timer_cfg_t timer_cfg_hw2;
 
 extern cyhal_uart_t remote_uart_obj;
+cy_rslt_t rslt;
 
 square board[3][3];
 int active_sq[2];
 char curr_player = 'x';
+bool player_one_selected;
+bool char_selected;
 bool player_one;
+bool is_active_player;
 
 
 /*****************************************************************************/
@@ -37,8 +41,17 @@ bool player_one;
 void timer_Handler()
 {
     // the timer handler moves active square and claims new square
-    move_active();
-    claim_square();
+    if (player_one_selected && char_selected && is_active_player) {
+        move_active();
+        claim_square();
+    }
+    else if (!player_one_selected) player_one_sel();
+    else if (!char_selected) {
+        starting_char_sel();
+    }
+    else if (!is_active_player) {
+        wait_for_turn();
+    }
     
 }
 /*****************************************************************************/
@@ -46,140 +59,146 @@ void timer_Handler()
 /*****************************************************************************/
 void wait_for_turn()
 {
-    __disable_irq();
-    draw_board();
     lcd_wait_for_other_player();
-    uint8_t msg;
-    receive_from_remote(&msg);
-    while (msg != 0x00 && msg != 0x01 && msg != 0x02 && 
+    char msg;
+    remote_uart_rx_data_async(&msg, 1);
+    if (msg != 0x00 && msg != 0x01 && msg != 0x02 && 
     msg != 0x10 && msg != 0x11 && msg != 0x12 &&
     msg != 0x20 && msg != 0x21 && msg != 0x22)
     {
-        receive_from_remote(&msg);
+        return;
     }
+    else
+    {
         int i = (msg & 0x03);
         int j = ((msg & 0x30) >> 4);
-        board[i][j].player = curr_player;
+        if (curr_player == 'x') board[j][i].player = 'o';
+        else board[j][i].player = 'x';
+        lcd_clear_other_player();
         draw_board();
-        if (curr_player == 'x')
-        {
-            curr_player = 'y';
-        }
-        else
-        {
-            curr_player = 'x';
-        }
-        __enable_irq();
+        is_active_player = true;
+    }
+    draw_board();
+        
 }
 
 void starting_char_sel()
 {
+    char msg;
+    remote_uart_rx_data_async(&msg, 1);
     if (player_one)
     {
-        while(get_buttons() != BUTTON_SW2_RELEASED)
-        {
-            if (get_buttons() == BUTTON_SW1_RELEASED)
+        uint8_t button = get_buttons();
+        if (button == BUTTON_SW2_RELEASED && !char_selected) {
+            if (curr_player == 'x')
             {
-                if (curr_player == 'x')
-                {
-                    curr_player = 'o';
-                    draw_board();
-                }
-                else
-                {
-                    curr_player = 'x';
-                    draw_board();
-                }
+                remote_uart_tx_char_async(X_SELECTION);
+                remote_uart_tx_char_async('\n');
+            }
+            else
+            {
+                remote_uart_tx_char_async(O_SELECTION);
+                remote_uart_tx_char_async('\n');
             }
         }
-        if (curr_player == 'x')
+        else if (button == BUTTON_SW1_RELEASED && !char_selected)
         {
-            send_to_remote(X_SELECTION);
-            wait_for_ack();
+            if (curr_player == 'x')
+            {
+                curr_player = 'o';
+                draw_board();
+            }
+            else
+            {
+                curr_player = 'x';
+                draw_board();
+            }
         }
-        else
-        {
-            send_to_remote(Y_SELECTION);
-            wait_for_ack();
-        }   
+        if (msg == ACK_BYTE) {
+            is_active_player = true;
+            char_selected = true;
+        }
     }
-
     else
     {
-        uint8_t msg;
-        tic_tac_toe_draw_grid();
-        lcd_wait_for_other_player();
-        receive_from_remote(&msg);
-        while(msg != X_SELECTION && msg != Y_SELECTION)
-        {
-            receive_from_remote(&msg);
-        }
         if (msg == X_SELECTION)
         {
-            curr_player = 'x';
-            send_ack_byte();
-            wait_for_turn();
-        }
-        else if (msg == Y_SELECTION)
-        {
             curr_player = 'o';
-            send_ack_byte();
-            wait_for_turn();
+            remote_uart_tx_char_async(ACK_BYTE);
+            remote_uart_tx_char_async('\n');
+            char_selected = true;
+        }
+        else if (msg == O_SELECTION)
+        {
+            curr_player = 'x';
+            remote_uart_tx_char_async(ACK_BYTE);
+            remote_uart_tx_char_async('\n');
+            char_selected = true;
         }
     }
     
 }
 
-void send_ack_byte()
-{
-    send_to_remote(ACK_BYTE);
-}
-
 void wait_for_ack()
 {
-    uint8_t msg;
-    receive_from_remote(&msg);
+    char msg;
+    remote_uart_rx_data_async(&msg, 1);
     while(msg != ACK_BYTE)
     {
-        receive_from_remote(&msg);
+        remote_uart_rx_data_async(&msg, 1);
     }
 }
 
 void player_one_sel()
 {   
-    __disable_irq();
-    lcd_clear_screen(LCD_COLOR_BLACK);
-    lcd_select_player1();
-    uint8_t msg;
-    receive_from_remote(&msg);
-    while(get_buttons() != BUTTON_SW2_RELEASED && msg != PLAYER1_SELECTION)
-    {
-        receive_from_remote(&msg);
-        if (get_buttons() ==  BUTTON_SW2_RELEASED)
-        {
-            send_to_remote(PLAYER1_SELECTION);
-            player_one = true;;
-            wait_for_ack();
-            starting_char_sel();
-        }
-        else if (msg == PLAYER1_SELECTION)
-        {
-            send_ack_byte();
-            player_one = false;
-            starting_char_sel();
-        }
+    char msg;
+    // remote_uart_rx_data_async(&msg, 1);
+    // if (msg == PLAYER1_SELECTION) {
+    //     remote_uart_tx_char_async(ACK_BYTE);
+    //     player_one = false;
+    //     player_one_selected = true;
+    // }
+    // else if (get_buttons() ==  BUTTON_SW2_PRESSED)
+    // {
+    //     printf("pressed\n");
+    //     remote_uart_tx_char_async(PLAYER1_SELECTION);
+    //     wait_for_ack();
+    //     player_one = true;
+    //     player_one_selected = true;
+    // }
+    if (get_buttons() ==  BUTTON_SW2_RELEASED) {
+        printf("sent selection\n");
+        remote_uart_tx_char_async(PLAYER1_SELECTION);
+        remote_uart_tx_char_async('\n');
+        player_one = true;
     }
-    __enable_irq();
+    remote_uart_rx_data_async(&msg, 1);
+    if (msg == PLAYER1_SELECTION) {
+        printf("got selection\n");
+        remote_uart_tx_char_async(ACK_BYTE);
+        remote_uart_tx_char_async('\n');
+        player_one_selected = true;
+        player_one = false;
+        lcd_clear_screen(LCD_COLOR_BLACK);
+        draw_board();
+    }
+    else if (player_one && msg == ACK_BYTE) {
+        printf("got ack\n");
+        player_one_selected = true;
+        lcd_clear_screen(LCD_COLOR_BLACK);
+        draw_board();
+    }
+    printf("got nothing\n");
 }
 
 
-void send_to_remote(uint8_t msg)
+void send_to_remote(uint8_t *msg)
 {
     // I think these will get changed to functions from remote_uart_tx.c - currently placeholder
     // cy_rslt_t rslt = cyhal_uart_putc(&remote_uart_obj, msg);
     // CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
-    remote_uart_tx_data_async(&msg);
+    remote_uart_tx_data_async(msg);
 
 
 }
@@ -190,11 +209,9 @@ void receive_from_remote(uint8_t *msg)
     // cy_rslt_t rslt = cyhal_uart_getc(&remote_uart_obj, msg, 0); 
     // CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 
-    bool rslt = remote_uart_rx_data_async(msg, 8);
-    if (rslt == false)
-    {
-        return 0xFF;
-    }
+    rslt = remote_uart_rx_data_async(msg, 1);
+    printf("msg = %i\n", *msg);
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
 }
 
 /**
@@ -396,62 +413,69 @@ void check_win()
  */
 void draw_board(void)
 {
-    // Horizontal Lines
     lcd_draw_rectangle_centered(SCREEN_CENTER_COL, UPPER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
     lcd_draw_rectangle_centered(SCREEN_CENTER_COL, LOWER_HORIZONTAL_LINE_Y, LINE_LENGTH, LINE_WIDTH, LCD_COLOR_BLUE);
-
-    // Vertical Lines
-    lcd_draw_rectangle_centered(LEFT_VERTICAL_LINE_X, SCREEN_CENTER_ROW, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
-    lcd_draw_rectangle_centered(RIGHT_VERTICAL_LINE_X, SCREEN_CENTER_ROW, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
+    lcd_draw_rectangle_centered(LEFT_VERTICAL_LINE_X, SCREEN_CENTER_ROW + 20, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
+    lcd_draw_rectangle_centered(RIGHT_VERTICAL_LINE_X, SCREEN_CENTER_ROW + 20, LINE_WIDTH, LINE_LENGTH, LCD_COLOR_BLUE);
 
     // draw the square according to their status
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            // in case when the square is not active
-            if (!is_active(&board[i][j])) {
-                switch (board[i][j].player) {
-                    case '\0':
-                        lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_O);
-                        lcd_draw_image(board[i][j].col, board[i][j].row, O_WIDTH, O_HEIGHT, Bitmaps_O, BG_COLOR_O, BG_COLOR_O);
-                        break;
-                    case 'x':
-                        lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_X);
-                        lcd_draw_image(board[i][j].col, board[i][j].row, X_WIDTH, X_HEIGHT, Bitmaps_X, FG_COLOR_X, BG_COLOR_X);
-                        break;
-                    case 'o':
-                        lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_O);
-                        lcd_draw_image(board[i][j].col, board[i][j].row, O_WIDTH, O_HEIGHT, Bitmaps_O, FG_COLOR_O, BG_COLOR_O);
-                        break;
+    if (char_selected || player_one) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // in case when the square is not active
+                if (!is_active(&board[i][j])) {
+                    switch (board[i][j].player) {
+                        case '\0':
+                            lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_O);
+                            lcd_draw_image(board[i][j].col, board[i][j].row, O_WIDTH, O_HEIGHT, Bitmaps_O, BG_COLOR_O, BG_COLOR_O);
+                            break;
+                        case 'x':
+                            lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_X);
+                            lcd_draw_image(board[i][j].col, board[i][j].row, X_WIDTH, X_HEIGHT, Bitmaps_X, FG_COLOR_X, BG_COLOR_X);
+                            break;
+                        case 'o':
+                            lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_O);
+                            lcd_draw_image(board[i][j].col, board[i][j].row, O_WIDTH, O_HEIGHT, Bitmaps_O, FG_COLOR_O, BG_COLOR_O);
+                            break;
+                    }
+                    
                 }
-                
-            }
-            // when the square is active
-            else {
-                uint8_t *map;
-                uint8_t size[2];
-                if (curr_player == 'x') {
-                    map = Bitmaps_X;
-                    size[0] = X_WIDTH;
-                    size[1] = X_HEIGHT;
-                }
+                // when the square is active
                 else {
-                    map = Bitmaps_O;
-                    size[0] = O_WIDTH;
-                    size[1] = O_HEIGHT;
-                }
-                switch (board[i][j].player) {
-                    case '\0':
-                        lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_UNCLAIMED);
-                        lcd_draw_image(board[i][j].col, board[i][j].row, size[0], size[1], map, FG_COLOR_UNCLAIMED, BG_COLOR_UNCLAIMED);
-                        break;
-                    default:
-                        lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_CLAIMED);
-                        lcd_draw_image(board[i][j].col, board[i][j].row, size[0], size[1], map, FG_COLOR_CLAIMED, BG_COLOR_CLAIMED);
-                        break;
-                }
+                    uint8_t *map;
+                    uint8_t size[2];
+                    if (board[i][j].player == 'x') {
+                        map = Bitmaps_X;
+                        size[0] = X_WIDTH;
+                        size[1] = X_HEIGHT;
+                    }
+                    else if (board[i][j].player == 'o') {
+                        map = Bitmaps_O;
+                        size[0] = O_WIDTH;
+                        size[1] = O_HEIGHT;
+                    }
+                    else {
+                        map = (curr_player == 'x')?Bitmaps_X:Bitmaps_O;
+                        size[0] = O_WIDTH;
+                        size[1] = O_HEIGHT;
+                    }
+                    switch (board[i][j].player) {
+                        case '\0':
+                            lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_UNCLAIMED);
+                            lcd_draw_image(board[i][j].col, board[i][j].row, size[0], size[1], map, FG_COLOR_UNCLAIMED, BG_COLOR_UNCLAIMED);
+                            break;
+                        default:
+                            lcd_draw_rectangle_centered(board[i][j].col, board[i][j].row, SQUARE_SIZE, SQUARE_SIZE, BG_COLOR_CLAIMED);
+                            lcd_draw_image(board[i][j].col, board[i][j].row, size[0], size[1], map, FG_COLOR_CLAIMED, BG_COLOR_CLAIMED);
+                            break;
+                    }
 
+                }
             }
         }
+    }
+    else if (!char_selected) {
+        lcd_wait_for_other_player();
     }
 }
 /**
@@ -562,14 +586,12 @@ bool claim_square()
         if (board[active_sq[0]][active_sq[1]].player != '\0') return false;
         else {
             board[active_sq[0]][active_sq[1]].player = curr_player;
-            uint8_t msg = (active_sq[0] << 4) + active_sq[1];
-            send_to_remote(msg);
-            wait_for_ack();
-            if (curr_player == 'x') curr_player = 'o';
-            else curr_player = 'x';
             draw_board();
             check_win();
-            wait_for_turn();
+            char msg = (active_sq[0] << 4) + active_sq[1];
+            remote_uart_tx_char_async(msg);
+            remote_uart_tx_char_async('\n');
+            is_active_player = false;
             return true;
         }
     }
@@ -592,6 +614,7 @@ void hw02_peripheral_init(void)
 
     /* Initialize the remote UART */
     remote_uart_init();
+    remote_uart_enable_interrupts();
     /* Initialize Timer to generate interrupts every 100mS*/
     timer_init(&timer_obj_hw2, &timer_cfg_hw2, 10000000, timer_Handler);
 }
@@ -606,8 +629,16 @@ void hw02_main_app(void)
 {
     // only initialize the borad and draw it for the first time, leave other jobs to the timer handler
     board_init(board);
-    player_one_sel();
-    draw_board();
+    lcd_clear_screen(LCD_COLOR_BLACK);
+    lcd_select_player1();
+    player_one_selected = false;
+    char_selected = false;
+    while (!player_one_selected) {
+        
+    }
+    while (!char_selected) {
+
+    }
     while(1)
     {
 

@@ -11,6 +11,7 @@
 #include "console.h"
 
 extern cyhal_uart_t cy_retarget_io_uart_obj;
+
 /*****************************************************************************/
 /* ICE 01 START*/
 /*****************************************************************************/
@@ -53,28 +54,30 @@ bool console_rx_string(uint8_t *msg)
 
     /* Check to see if there is a new character from the console*/
     /* Wait for 1ms if no character has been received */
+
     rslt = cyhal_uart_getc(&cy_retarget_io_uart_obj, &c, 1);
+
     if (rslt == CY_RSLT_SUCCESS)
     {
         /* Add the current character to the message*/
         temp_buffer[buffer_index] = c;
+        buffer_index++;
+
         /* If the character returned is a \n, return true*/
+        if (c == '\n' || c == '\r')
+        {
+            temp_buffer[buffer_index-1] = '\0';
             /* Copy the message to the destination address*/
+            strcpy(msg, temp_buffer);
             
             /* Erase all characters and reset the index */
-        if (c == '\n' || c == '\r') 
-        {
-            temp_buffer[buffer_index] = 0;
-            strcpy(msg, temp_buffer);
-            // next time the function is called the index is 0
+            memset(temp_buffer, '\0', buffer_index);
             buffer_index = 0;
+
             return_value = true;
         }
-        else
-        {
-            buffer_index++;
-        }
-
     }
+
+    
     return return_value;
 }

@@ -52,9 +52,6 @@ void leds_init(void);
 /* 
 * Provide external access to the PWM Handles for the 3 different IO pins.
 */
-// extern cyhal_pwm_t pwm_red_obj;
-// extern cyhal_pwm_t pwm_green_obj;
-// extern cyhal_pwm_t pwm_blue_obj;
 
 /**
  * @brief 
