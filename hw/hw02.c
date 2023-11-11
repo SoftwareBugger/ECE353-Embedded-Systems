@@ -33,6 +33,8 @@ bool player_one_selected;
 bool char_selected;
 bool player_one;
 bool is_active_player;
+bool square_claimed;
+bool game_over;
 
 
 /*****************************************************************************/
@@ -41,16 +43,29 @@ bool is_active_player;
 void timer_Handler()
 {
     // the timer handler moves active square and claims new square
-    if (player_one_selected && char_selected && is_active_player) {
+    if (!game_over && player_one_selected && char_selected && is_active_player && !square_claimed) {
         move_active();
-        claim_square();
+        square_claimed = claim_square();
     }
-    else if (!player_one_selected) player_one_sel();
-    else if (!char_selected) {
+    else if (!game_over && player_one_selected && char_selected && is_active_player) {
+        static char msg;
+        remote_uart_rx_data_async(&msg, 1);
+        if (msg == ACK_BYTE) {
+            printf("check win as an active\n");
+            check_win();
+            is_active_player = false;
+        }
+    }
+    else if (!game_over && !player_one_selected) player_one_sel();
+    else if (!game_over && !char_selected) {
         starting_char_sel();
     }
-    else if (!is_active_player) {
+    else if (!is_active_player && !game_over) {
         wait_for_turn();
+    }
+    else if (game_over) {
+        //if (get_buttons() == BUTTON_SW2_RELEASED) game_over = false;
+        init_game();
     }
     
 }
@@ -74,11 +89,14 @@ void wait_for_turn()
         int j = ((msg & 0x30) >> 4);
         if (curr_player == 'x') board[j][i].player = 'o';
         else board[j][i].player = 'x';
+        remote_uart_tx_char_async(ACK_BYTE);
+        remote_uart_tx_char_async('\n');
         lcd_clear_other_player();
         draw_board();
+        check_win();
         is_active_player = true;
+        square_claimed = false;
     }
-    draw_board();
         
 }
 
@@ -139,16 +157,6 @@ void starting_char_sel()
     
 }
 
-void wait_for_ack()
-{
-    char msg;
-    remote_uart_rx_data_async(&msg, 1);
-    while(msg != ACK_BYTE)
-    {
-        remote_uart_rx_data_async(&msg, 1);
-    }
-}
-
 void player_one_sel()
 {   
     char msg;
@@ -167,14 +175,12 @@ void player_one_sel()
     //     player_one_selected = true;
     // }
     if (get_buttons() ==  BUTTON_SW2_RELEASED) {
-        printf("sent selection\n");
         remote_uart_tx_char_async(PLAYER1_SELECTION);
         remote_uart_tx_char_async('\n');
         player_one = true;
     }
     remote_uart_rx_data_async(&msg, 1);
     if (msg == PLAYER1_SELECTION) {
-        printf("got selection\n");
         remote_uart_tx_char_async(ACK_BYTE);
         remote_uart_tx_char_async('\n');
         player_one_selected = true;
@@ -183,227 +189,203 @@ void player_one_sel()
         draw_board();
     }
     else if (player_one && msg == ACK_BYTE) {
-        printf("got ack\n");
         player_one_selected = true;
         lcd_clear_screen(LCD_COLOR_BLACK);
         draw_board();
     }
-    printf("got nothing\n");
 }
 
-
-void send_to_remote(uint8_t *msg)
-{
-    // I think these will get changed to functions from remote_uart_tx.c - currently placeholder
-    // cy_rslt_t rslt = cyhal_uart_putc(&remote_uart_obj, msg);
-    // CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-
-    remote_uart_tx_data_async(msg);
-
-
-}
-
-void receive_from_remote(uint8_t *msg)
-{
-    // I think these will get changed to functions from remote_uart_rx.c - currently placeholder
-    // cy_rslt_t rslt = cyhal_uart_getc(&remote_uart_obj, msg, 0); 
-    // CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-
-    rslt = remote_uart_rx_data_async(msg, 1);
-    printf("msg = %i\n", *msg);
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-}
 
 /**
  * @brief define the behavior when the game is over
  * 
  */
-void game_over_state()
-{
-    // reinitialize the board if the game is over, also switch order of the two players
-    board_init(board);
-    // when button two is pressed, start a new game by clearing the screen and redraw the board
-    while(1)
-    {
-        if (get_buttons() == BUTTON_SW2_RELEASED)
-        {
-            lcd_clear_screen(LCD_COLOR_BLACK);
-            player_one_sel();
-            draw_board();
-            break;
-        }
-    }
-}
+// void game_over_state()
+// {
+//     // reinitialize the board if the game is over, also switch order of the two players
+//     // when button two is pressed, start a new game by clearing the screen and redraw the board
+//     player_one_selected = false;
+//     player_one = false;
+//     while(!player_one_selected)
+//     {
+//         player_one_sel();
+//     }
+// }
 /**
  * @brief check if there is a winner or a tie
  * 
  */
 void check_win()
 {
+    printf("check win here\n");
     // check if there is a winner in the first row
     if (((board[0][0].player == board[1][0].player) && board[0][0].player == board[2][0].player))
     {
+        printf("first column\n");
         switch(board[0][0].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
     // check the first column
-        else if (((board[0][0].player == board[0][1].player) && board[0][0].player == board[0][2].player))
+    if (((board[0][0].player == board[0][1].player) && board[0][0].player == board[0][2].player))
     {
+        printf("first row\n");
         switch(board[0][0].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
         // check the diagonal line
-        else if (((board[0][0].player == board[1][1].player) && board[0][0].player == board[2][2].player))
+    if (((board[0][0].player == board[1][1].player) && board[0][0].player == board[2][2].player))
     {
+        printf("diagonal\n");
         switch(board[0][0].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
         // check the second row
-        else if (((board[0][1].player == board[1][1].player) && board[0][1].player == board[2][1].player))
+    if (((board[0][1].player == board[1][1].player) && board[0][1].player == board[2][1].player))
     {
+        printf("second col\n");
         switch(board[0][1].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
         // check the third row
-        else if (((board[0][2].player == board[1][2].player) && board[0][2].player == board[2][2].player))
+    if (((board[0][2].player == board[1][2].player) && board[0][2].player == board[2][2].player))
     {
+        printf("third col\n");
         switch(board[0][2].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;;
         }
     }
         // check the second column
-        else if (((board[1][0].player == board[1][1].player) && board[1][0].player == board[1][2].player))
+    if (((board[1][0].player == board[1][1].player) && board[1][0].player == board[1][2].player))
     {
+        printf("second row\n");
         switch(board[1][0].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
         // check the third column
-        else if (((board[2][0].player == board[2][1].player) && board[2][0].player == board[2][2].player))
+    if (((board[2][0].player == board[2][1].player) && board[2][0].player == board[2][2].player))
     {
+        printf("third row\n");
         switch(board[2][0].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
         // check the other diagonal line
-        else if (((board[0][2].player == board[1][1].player) && board[0][2].player == board[2][0].player))
+    if (((board[0][2].player == board[1][1].player) && board[0][2].player == board[2][0].player))
     {
+        printf("second diagonal\n");
         switch(board[0][2].player){
             case('x'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_X_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             case('o'):
-                lcd_clear_screen(LCD_COLOR_BLACK);
                 lcd_O_wins();
-                game_over_state();
+                game_over = true;
+                //game_over_state();
                 break;
             default:
                 break;
         }
     }
     // no winner check for a tie
-    else
+    bool full = true;
+    for (int i = 0; i < 3; i++)
     {
-        bool full = true;
-        for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
         {
-            for (int j = 0; j < 3; j++)
+            if (board[i][j].player == '\0')
             {
-                if (board[i][j].player == '\0')
-                {
-                    full = false;
-                }
+                full = false;
             }
         }
-        if (full)
-        {
-            lcd_clear_screen(LCD_COLOR_BLACK);
-            lcd_tie();
-            game_over_state();
-        }
+    }
+    if (full && !game_over)
+    {
+        lcd_tie();
+        game_over = true;
     }
 }
 
@@ -585,13 +567,11 @@ bool claim_square()
     if (get_buttons() == BUTTON_SW1_PRESSED) {
         if (board[active_sq[0]][active_sq[1]].player != '\0') return false;
         else {
-            board[active_sq[0]][active_sq[1]].player = curr_player;
-            draw_board();
-            check_win();
             char msg = (active_sq[0] << 4) + active_sq[1];
             remote_uart_tx_char_async(msg);
             remote_uart_tx_char_async('\n');
-            is_active_player = false;
+            board[active_sq[0]][active_sq[1]].player = curr_player;
+            draw_board();
             return true;
         }
     }
@@ -621,6 +601,16 @@ void hw02_peripheral_init(void)
 bool is_active(square *sq) {
     return ((sq->col == board[active_sq[0]][active_sq[1]].col) && (sq->row == board[active_sq[0]][active_sq[1]].row));
 }
+void init_game() {
+    
+    board_init(board);
+    player_one_selected = false;
+    char_selected = false;
+    player_one = false;
+    game_over = false;
+    square_claimed = false;
+    is_active_player = false;
+}
 /**
  * @brief
  * Implements the main application for HW02
@@ -628,19 +618,7 @@ bool is_active(square *sq) {
 void hw02_main_app(void)
 {
     // only initialize the borad and draw it for the first time, leave other jobs to the timer handler
-    board_init(board);
     lcd_clear_screen(LCD_COLOR_BLACK);
+    init_game();
     lcd_select_player1();
-    player_one_selected = false;
-    char_selected = false;
-    while (!player_one_selected) {
-        
-    }
-    while (!char_selected) {
-
-    }
-    while(1)
-    {
-
-    }
 }
