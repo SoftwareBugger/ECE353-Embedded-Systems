@@ -160,20 +160,6 @@ void starting_char_sel()
 void player_one_sel()
 {   
     char msg;
-    // remote_uart_rx_data_async(&msg, 1);
-    // if (msg == PLAYER1_SELECTION) {
-    //     remote_uart_tx_char_async(ACK_BYTE);
-    //     player_one = false;
-    //     player_one_selected = true;
-    // }
-    // else if (get_buttons() ==  BUTTON_SW2_PRESSED)
-    // {
-    //     printf("pressed\n");
-    //     remote_uart_tx_char_async(PLAYER1_SELECTION);
-    //     wait_for_ack();
-    //     player_one = true;
-    //     player_one_selected = true;
-    // }
     if (get_buttons() ==  BUTTON_SW2_RELEASED) {
         remote_uart_tx_char_async(PLAYER1_SELECTION);
         remote_uart_tx_char_async('\n');
@@ -195,22 +181,6 @@ void player_one_sel()
     }
 }
 
-
-/**
- * @brief define the behavior when the game is over
- * 
- */
-// void game_over_state()
-// {
-//     // reinitialize the board if the game is over, also switch order of the two players
-//     // when button two is pressed, start a new game by clearing the screen and redraw the board
-//     player_one_selected = false;
-//     player_one = false;
-//     while(!player_one_selected)
-//     {
-//         player_one_sel();
-//     }
-// }
 /**
  * @brief check if there is a winner or a tie
  * 
@@ -601,6 +571,11 @@ void hw02_peripheral_init(void)
 bool is_active(square *sq) {
     return ((sq->col == board[active_sq[0]][active_sq[1]].col) && (sq->row == board[active_sq[0]][active_sq[1]].row));
 }
+/**
+ * @brief 
+ * initialize the game
+ * 
+ */
 void init_game() {
     
     board_init(board);
