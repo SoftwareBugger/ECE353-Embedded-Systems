@@ -20,14 +20,17 @@
 /*  Global Variables                                                         */
 /*****************************************************************************/
 char HW02_DESCRIPTION[] = "ECE353: HW02 Dominic Valentini, Adam Boho, Han Lyu";
+// timer objects and uart object
 cyhal_timer_t timer_obj_hw2;
 cyhal_timer_cfg_t timer_cfg_hw2;
-
 extern cyhal_uart_t remote_uart_obj;
+// cyhal results
 cy_rslt_t rslt;
-
+// board
 square board[3][3];
+// active square coordinates
 int active_sq[2];
+// condition variables
 char curr_player = 'x';
 bool player_one_selected;
 bool char_selected;
@@ -47,24 +50,27 @@ void timer_Handler()
         move_active();
         square_claimed = claim_square();
     }
+    // claimed a square, wait for ACK byte
     else if (!game_over && player_one_selected && char_selected && is_active_player) {
         static char msg;
         remote_uart_rx_data_async(&msg, 1);
         if (msg == ACK_BYTE) {
-            printf("check win as an active\n");
             check_win();
             is_active_player = false;
         }
     }
+    // select player one
     else if (!game_over && !player_one_selected) player_one_sel();
+    // select char X or O
     else if (!game_over && !char_selected) {
         starting_char_sel();
     }
+    // wait for the active player
     else if (!is_active_player && !game_over) {
         wait_for_turn();
     }
+    // reinitialize the game when game over state occurs
     else if (game_over) {
-        //if (get_buttons() == BUTTON_SW2_RELEASED) game_over = false;
         init_game();
     }
     
@@ -74,21 +80,26 @@ void timer_Handler()
 /*****************************************************************************/
 void wait_for_turn()
 {
+    // display splash screen
     lcd_wait_for_other_player();
+    // get coordinates
     char msg;
     remote_uart_rx_data_async(&msg, 1);
+    // when the coordinates are not valid
     if (msg != 0x00 && msg != 0x01 && msg != 0x02 && 
     msg != 0x10 && msg != 0x11 && msg != 0x12 &&
     msg != 0x20 && msg != 0x21 && msg != 0x22)
     {
         return;
     }
+    // when we get valid coordinates
     else
     {
         int i = (msg & 0x03);
         int j = ((msg & 0x30) >> 4);
         if (curr_player == 'x') board[j][i].player = 'o';
         else board[j][i].player = 'x';
+        // send ACK byte
         remote_uart_tx_char_async(ACK_BYTE);
         remote_uart_tx_char_async('\n');
         lcd_clear_other_player();
@@ -100,10 +111,15 @@ void wait_for_turn()
         
 }
 
+/**
+ * @brief Select X or O
+ * 
+ */
 void starting_char_sel()
 {
     char msg;
     remote_uart_rx_data_async(&msg, 1);
+    // in case of player one
     if (player_one)
     {
         uint8_t button = get_buttons();
@@ -137,6 +153,7 @@ void starting_char_sel()
             char_selected = true;
         }
     }
+    // player two
     else
     {
         if (msg == X_SELECTION)
@@ -157,6 +174,10 @@ void starting_char_sel()
     
 }
 
+/**
+ * @brief determine player one
+ * 
+ */
 void player_one_sel()
 {   
     char msg;
@@ -187,11 +208,9 @@ void player_one_sel()
  */
 void check_win()
 {
-    printf("check win here\n");
     // check if there is a winner in the first row
     if (((board[0][0].player == board[1][0].player) && board[0][0].player == board[2][0].player))
     {
-        printf("first column\n");
         switch(board[0][0].player){
             case('x'):
                 lcd_X_wins();
@@ -210,7 +229,6 @@ void check_win()
     // check the first column
     if (((board[0][0].player == board[0][1].player) && board[0][0].player == board[0][2].player))
     {
-        printf("first row\n");
         switch(board[0][0].player){
             case('x'):
                 lcd_X_wins();
@@ -229,7 +247,6 @@ void check_win()
         // check the diagonal line
     if (((board[0][0].player == board[1][1].player) && board[0][0].player == board[2][2].player))
     {
-        printf("diagonal\n");
         switch(board[0][0].player){
             case('x'):
                 lcd_X_wins();
@@ -248,7 +265,6 @@ void check_win()
         // check the second row
     if (((board[0][1].player == board[1][1].player) && board[0][1].player == board[2][1].player))
     {
-        printf("second col\n");
         switch(board[0][1].player){
             case('x'):
                 lcd_X_wins();
@@ -267,7 +283,6 @@ void check_win()
         // check the third row
     if (((board[0][2].player == board[1][2].player) && board[0][2].player == board[2][2].player))
     {
-        printf("third col\n");
         switch(board[0][2].player){
             case('x'):
                 lcd_X_wins();
@@ -286,7 +301,6 @@ void check_win()
         // check the second column
     if (((board[1][0].player == board[1][1].player) && board[1][0].player == board[1][2].player))
     {
-        printf("second row\n");
         switch(board[1][0].player){
             case('x'):
                 lcd_X_wins();
@@ -305,7 +319,6 @@ void check_win()
         // check the third column
     if (((board[2][0].player == board[2][1].player) && board[2][0].player == board[2][2].player))
     {
-        printf("third row\n");
         switch(board[2][0].player){
             case('x'):
                 lcd_X_wins();
@@ -324,7 +337,6 @@ void check_win()
         // check the other diagonal line
     if (((board[0][2].player == board[1][1].player) && board[0][2].player == board[2][0].player))
     {
-        printf("second diagonal\n");
         switch(board[0][2].player){
             case('x'):
                 lcd_X_wins();
@@ -430,6 +442,7 @@ void draw_board(void)
         lcd_wait_for_other_player();
     }
 }
+
 /**
  * @brief moves the active square
  */
