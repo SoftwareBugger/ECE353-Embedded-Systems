@@ -49,7 +49,8 @@
 */
 #undef ICE 
 #undef HW01
-#define HW02
+#undef HW02
+#define PROJECT
 
 /* This macro identifies which ice/example file is being compiled into an executable*/
 #define FILE_ID 13

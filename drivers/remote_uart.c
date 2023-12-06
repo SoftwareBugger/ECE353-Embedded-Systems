@@ -112,6 +112,7 @@ void remote_uart_event_handler(void *handler_arg, cyhal_uart_event_t event)
     (void)handler_arg;
     cy_rslt_t status;
     char c;
+
     if ((event & CYHAL_UART_IRQ_TX_ERROR) == CYHAL_UART_IRQ_TX_ERROR)
     {
         /* An error occurred in Tx */
