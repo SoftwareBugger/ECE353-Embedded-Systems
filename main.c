@@ -40,7 +40,7 @@
 *******************************************************************************/
 
 #include "main.h"
-#include "hw/hw02.h"
+#include "project.h"
 
 int main(void)
 {
