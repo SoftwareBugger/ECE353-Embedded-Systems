@@ -52,7 +52,7 @@
 #include <semphr.h>
 #include <task.h>
 
-#include "hw/hw02.h"
+#include "hw/project.h"
 
 /* This macro is used to determine if we are building an executable for example code or ICE code
  * 

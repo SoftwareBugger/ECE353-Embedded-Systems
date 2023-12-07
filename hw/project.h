@@ -65,13 +65,13 @@ typedef struct coord{
 
 /**
  * @brief 
- * Initializes the PSoC6 Peripherals used for HW02 
+ * Initializes the PSoC6 Peripherals used for project 
  */
 void proj_periph_init(void);
 
 /**
  * @brief 
- * Implements the main application for HW02 
+ * Implements the main application for project
  */
 void proj_main_app(void);
 
