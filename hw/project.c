@@ -21,10 +21,17 @@
 /*****************************************************************************/
 char PROJ_DESCRIPTION[] = "ECE353: Project; Dominic Valentini, Adam Boho, Han Lyu";
 // timer objects and uart object
-cyhal_timer_t proj_timer_obj_proj;
-cyhal_timer_cfg_t proj_timer_cfg_proj;
-extern cyhal_uart_t proj_remote_uart_proj;
+cyhal_timer_t proj_timer_obj;
+cyhal_timer_cfg_t proj_timer_cfg;
+extern cyhal_uart_t proj_remote_uart;
 // cyhal results
+cy_rslt_t proj_rslt;
+
+bool joystick_enable;
+
+TaskHandle_t joystick_task;
+TaskHandle_t send_task;
+
 
 /*****************************************************************************/
 /*  Interrupt Handlers                                                       */
@@ -40,5 +47,22 @@ void proj_main_app(void)
 
 void proj_periph_init(void)
 {
+    // initialize push buttons
+    push_buttons_init();
 
+    // initialize LCD
+    ece353_enable_lcd();
+
+    // initialize joystick
+    joystick_init();
+
+    // initialize remote UART
+    remote_uart_init();
+    remote_uart_enable_interrupts();
+
+    // initialize timer
+    timer_init(&proj_timer_obj, &proj_timer_cfg, 100000, proj_timer_handler);
+
+    // initialize imu
+    platform_init();
 }

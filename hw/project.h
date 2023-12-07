@@ -18,13 +18,19 @@
 
 #define SCREEN_CENTER_COL    ((SCREEN_X/2)-1)
 #define SCREEN_CENTER_ROW    ((SCREEN_Y/2)-1)
-
-#define LINE_WIDTH          4
-#define LINE_LENGTH         120 
-
-#define SQUARE_SIZE         32
+ 
 
 #define PADDING             2
+
+#define RIGHT_BOUND         320
+#define LEFT_BOUND          0
+#define LOWER_BOUND         0
+#define UPPER_BOUND         240
+
+#define PLAYER_ALT          15
+#define PLAYER_HEIGHT       6
+#define PLAYER_LENGTH       20
+
 
 // ADC values
 #define JOYSTICK_UP               0xD173
@@ -33,13 +39,15 @@
 #define JOYSTICK_RIGHT            0x2E8B
 
 // UART BYTES
-#define PLAYER1_SELECTION         0x5A
 #define ACK_BYTE                  0xF0
-#define X_SELECTION               0x58
-#define O_SELECTION               0x4F
 
 extern char PROJECT_DESCRIPTION[];
-// data structure for the square
+
+typedef struct player {
+    uint16_t x_pos;
+    uint16_t color;
+    bool active;
+} player;
 
 /**
  * @brief 
