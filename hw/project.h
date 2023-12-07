@@ -29,7 +29,7 @@
 
 #define PLAYER_ALT          15
 #define PLAYER_HEIGHT       6
-#define PLAYER_LENGTH       20
+#define PLAYER_LENGTH       24
 
 
 // ADC values
@@ -44,10 +44,24 @@
 extern char PROJECT_DESCRIPTION[];
 
 typedef struct player {
-    uint16_t x_pos;
+    uint16_t x_pos_center;
+    uint16_t x_pos_left;
+    uint16_t x_pos_right;
     uint16_t color;
     bool active;
 } player;
+
+typedef struct ball {
+    uint16_t x_pos;
+    uint16_t y_pos;
+    uint16_t dy;
+    uint16_t dx; 
+} ball;
+
+typedef struct coord{
+    uint16_t x;
+    uint16_t y;
+} coord;
 
 /**
  * @brief 
@@ -66,5 +80,11 @@ void proj_main_app(void);
  * Handler for the timer
  */
 void proj_timer_handler(void);
+
+/**
+ * @brief 
+ * Processes the ball hitting the player
+ */
+void proj_collision_handler(ball ball, player player);
 
 #endif

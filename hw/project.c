@@ -12,8 +12,6 @@
  */
 #include "main.h"
 #include "project.h"
-#include "hw02-lcd-staff.h"
-#include "hw02-images.h"
 
 
 /*****************************************************************************/
@@ -27,10 +25,24 @@ extern cyhal_uart_t proj_remote_uart;
 // cyhal results
 cy_rslt_t proj_rslt;
 
-bool joystick_enable;
+bool joystick_enabled;
+bool two_player;
 
-TaskHandle_t joystick_task;
+// MOVE TO INDIVIDUAL TASK FILES 
+TaskHandle_t active_task;
+void task_active(void *pvParameters);
 TaskHandle_t send_task;
+void task_send(void *pvParamaters);
+TaskHandle_t inactive_task;
+void task_inactive(void *pvParameters);
+TaskHandle_t score_task;
+void task_score(void *pvParameters);
+TaskHandle_t draw_task;
+void task_draw(void *pvParameters);
+
+QueueHandle_t position_queue;
+
+
 
 
 /*****************************************************************************/
@@ -42,6 +54,9 @@ void proj_timer_handler(void)
 }
 void proj_main_app(void)
 {
+    position_queue = xQueueCreate(1, sizeof(coord));
+
+    xTaskCreate(active_task, "Active", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 
 }
 
@@ -60,9 +75,21 @@ void proj_periph_init(void)
     remote_uart_init();
     remote_uart_enable_interrupts();
 
-    // initialize timer
-    timer_init(&proj_timer_obj, &proj_timer_cfg, 100000, proj_timer_handler);
+    // initialize timer, 10ms
+    timer_init(&proj_timer_obj, &proj_timer_cfg, 1000000, proj_timer_handler);
 
     // initialize imu
     platform_init();
+
+    // initialize i2c
+    i2c_init();
+}
+
+void proj_collision_handler(ball ball, player player)
+{
+    // if ball hits player, change y direction
+    if (ball.y_pos == PLAYER_ALT + 1 && ball.x_pos > player.x_pos_left && ball.x_pos < player.x_pos_right)
+    {
+        ball.y_pos  == -1 * ball.y_pos;
+    }
 }

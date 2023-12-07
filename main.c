@@ -40,7 +40,7 @@
 *******************************************************************************/
 
 #include "main.h"
-#include "hw/hw02.h"
+#include "hw/project.h"
 
 int main(void)
 {
@@ -63,8 +63,8 @@ int main(void)
     printf("* Time: %s\n\r", __TIME__);
     printf("**************************************************\n\r");
 
-    hw02_peripheral_init();
-    hw02_main_app();
+    // proj_periph_init();
+    // proj_main_app();
 
     for (;;)
     {
