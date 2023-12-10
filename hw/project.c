@@ -67,7 +67,7 @@ void proj_main_app(void)
     isplayer1 = false;
     playerX = paddleLeftWidthPixels/2;
     playerY = SCREEN_Y/2;
-    ballX = paddleLeftWidthPixels + 2 + ballWidthPixels/2;
+    ballX = paddleLeftWidthPixels + 10 + ballWidthPixels/2;
     ballY = SCREEN_Y/2;
     balldx = 1;
     balldy = 1;
