@@ -24,6 +24,8 @@
 #define PIN_UART_DBG_RX			P5_0
 #define PIN_UART_DBG_TX			P5_1
 
+#define CONSOLE_PORT            SCB5
+
 /**
  * @brief 
  * Initialize the UART interface used to print messages to the serial monitor  

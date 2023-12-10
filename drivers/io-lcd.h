@@ -236,4 +236,13 @@ void lcd_config_screen(void);
 *******************************************************************************/
 void ece353_enable_lcd(void);
 
+
+void lcd_draw_rectangle_centered(
+  uint16_t x,
+  uint16_t y,
+  uint16_t width_pixels,
+  uint16_t height_pixels,
+  uint16_t fColor
+);
+
 #endif /* ECE353__GPIO_LCD_H_ */

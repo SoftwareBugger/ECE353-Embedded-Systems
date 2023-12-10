@@ -21,4 +21,19 @@ extern const uint8_t wisconsinBitmaps[];
 extern const uint8_t wisconsinWidthPixels;
 extern const uint8_t wisconsinHeightPixels;
 
+extern const uint8_t paddleLeftBitmaps[];
+extern const uint8_t paddleLeftWidthPixels;
+extern const uint8_t paddleLeftHeightPixels;
+
+extern const uint8_t paddleRightBitmaps[];
+extern const uint8_t paddleRightWidthPixels;
+extern const uint8_t paddleRightHeightPixels;
+
+extern const uint8_t ballBitmaps[];
+extern const uint8_t ballWidthPixels;
+extern const uint8_t ballHeightPixels;
+
+extern const uint8_t welcomeBitmaps[];
+extern const uint16_t welcomeWidthPixels;
+extern const uint16_t welcomeHeightPixels;
 #endif

@@ -25,5 +25,6 @@
 void  pwm_buzzer_init(void);
 void  pwm_buzzer_start(void);
 void  pwm_buzzer_stop(void);
+void  pwm_buzzer_start_freq(uint32_t freq);
 
 #endif /* ECE353_PWM_BUZZER_H_ */

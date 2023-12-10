@@ -44,4 +44,17 @@ void pwm_buzzer_stop(void)
 }
 
 
+void pwm_buzzer_start_freq(uint32_t freq)
+{
+	cy_rslt_t rslt;
+
+	rslt = cyhal_pwm_set_duty_cycle(&pwm_buzzer_obj, PWM_BUZZER_DUTY, freq);
+    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+
+	rslt = cyhal_pwm_start(&pwm_buzzer_obj);
+	CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+
+}
+
+
 

@@ -24,20 +24,38 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
+#include <math.h>
 
 /* Include ECE353 Drivers */
+#include "drivers/circular_buffer.h"
 #include "drivers/console.h"
+#include "drivers/eeprom.h"
+#include "drivers/ft6x06.h"
+#include "drivers/i2c.h"
+#include "drivers/imu.h"
+#include "drivers/io-expander.h"
 #include "drivers/io-sw.h"
 #include "drivers/io-leds.h"
 #include "drivers/io-lcd.h"
+#include "drivers/lcd_images.h"
 #include "drivers/joystick.h"
+#include "drivers/LM75.h"
+#include "drivers/lsm6dsm_reg.h"
 #include "drivers/remote_uart.h"
 #include "drivers/systick.h"
 #include "drivers/timer.h"
 #include "drivers/pwm-buzzer.h"
+#include "drivers/spi.h"
 
+/* FreeRTOS Includes */
+#include <FreeRTOS.h>
+#include <event_groups.h>
+#include <queue.h>
+#include <semphr.h>
+#include <task.h>
 
-#include "hw/hw02.h"
+#include "hw/project.h"
 
 /* This macro is used to determine if we are building an executable for example code or ICE code
  * 
@@ -49,7 +67,8 @@
 */
 #undef ICE 
 #undef HW01
-#define HW02
+#undef HW02
+#define PROJECT
 
 /* This macro identifies which ice/example file is being compiled into an executable*/
 #define FILE_ID 13

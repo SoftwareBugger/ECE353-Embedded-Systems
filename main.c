@@ -40,8 +40,8 @@
 *******************************************************************************/
 
 #include "main.h"
+#include "hw/hw02.h"
 #include "project.h"
-
 int main(void)
 {
     cy_rslt_t rslt;
@@ -58,13 +58,13 @@ int main(void)
     printf("\x1b[2J\x1b[;H");
 
     printf("**************************************************\n\r");
-    printf("* %s\n\r",HW02_DESCRIPTION);
+    printf("* %s\n\r", PROJ_DESCRIPTION);
     printf("* Date: %s\n\r", __DATE__);
     printf("* Time: %s\n\r", __TIME__);
     printf("**************************************************\n\r");
 
-    hw02_peripheral_init();
-    hw02_main_app();
+    proj_periph_init();
+    proj_main_app();
 
     for (;;)
     {
