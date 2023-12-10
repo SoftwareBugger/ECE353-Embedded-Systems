@@ -14,6 +14,7 @@
 #include "drivers/joystick.h"
 #include "task_active.h"
 #include "task_buttons.h"
+#include "task_score.h"
 
 #define SCREEN_X            320
 #define SCREEN_Y            240
