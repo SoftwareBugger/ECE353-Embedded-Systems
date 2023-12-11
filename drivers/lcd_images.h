@@ -36,4 +36,9 @@ extern const uint8_t ballHeightPixels;
 extern const uint8_t welcomeBitmaps[];
 extern const uint16_t welcomeWidthPixels;
 extern const uint16_t welcomeHeightPixels;
+
+extern const uint16_t numberWidthPixels;
+extern const uint16_t numberHeightPixels;
+extern const uint8_t proj_num_bitmaps[];
+extern const uint16_t proj_num_offset[];
 #endif
