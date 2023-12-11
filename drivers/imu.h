@@ -63,6 +63,7 @@
 #define IMU_REG_OUTZ_L_XL       0x2C
 #define IMU_REG_OUTZ_H_XL       0x2D
 
+
 int32_t platform_write(void *handle, uint8_t reg, const uint8_t *bufp,
                               uint16_t len);
 int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,

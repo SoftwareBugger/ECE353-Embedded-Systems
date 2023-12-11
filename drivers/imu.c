@@ -94,13 +94,11 @@ void lsm6dsm_orientation(void)
   lsm6dsm_int1_route_t int_1_reg;
   /* Uncomment if interrupt generation on 6D INT2 pin */
   // lsm6dsm_int2_route_t int_2_reg;
+  platform_init();
+  platform_delay(15);
   dev_ctx.write_reg = platform_write;
   dev_ctx.read_reg = platform_read;
 
-  // /* Init test platform */
-  // platform_init();
-  // /* Wait sensor boot time */
-  // platform_delay(15);
   /* Check device ID */
   lsm6dsm_device_id_get(&dev_ctx, &whoamI);
 
@@ -137,52 +135,25 @@ void lsm6dsm_orientation(void)
   lsm6dsm_pin_int1_route_set(&dev_ctx, int_1_reg);
 
   /* Wait Events */
-  // while (1)
-  // {
-    lsm6dsm_all_sources_t all_source;
+  while (1)
+  {
+    uint8_t ctrl6_c;
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_CTRL6_C, &ctrl6_c, 1);
+    lsm6dsm_write_reg(&dev_ctx, IMU_REG_CTRL6_C, ctrl6_c & 0xEF, 1);
+    int16_t xl;
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTX_H_XL, &xl, 1);
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTX_L_XL, (char *)(&xl) + 1, 1);
 
-    /* Check if 6D Orientation events */
-    lsm6dsm_all_sources_get(&dev_ctx, &all_source);
+    int16_t yl;
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTY_H_XL, &yl, 1);
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTY_L_XL, (char *)(&yl) + 1, 1);
 
-    if (all_source.d6d_src.d6d_ia)
-    {
-      sprintf((char *)tx_buffer, "Orientation:  ");
+    int16_t zl = 1;
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTZ_H_XL, &zl, 1);
+    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTZ_L_XL, (char *)(&zl) + 1, 1);
 
-      if (all_source.d6d_src.xh)
-      {
-        strcat((char *)tx_buffer, "XH");
-      }
-
-      if (all_source.d6d_src.xl)
-      {
-        strcat((char *)tx_buffer, "XL");
-      }
-
-      if (all_source.d6d_src.yh)
-      {
-        strcat((char *)tx_buffer, "YH");
-      }
-
-      if (all_source.d6d_src.yl)
-      {
-        strcat((char *)tx_buffer, "YL");
-      }
-
-      if (all_source.d6d_src.zh)
-      {
-        strcat((char *)tx_buffer, "ZH");
-      }
-
-      if (all_source.d6d_src.zl)
-      {
-        strcat((char *)tx_buffer, "ZL");
-      }
-
-      strcat((char *)tx_buffer, "\r\n");
-      tx_com(tx_buffer, strlen((char const *)tx_buffer));
-      cyhal_system_delay_ms(50);
-    }
-  // }
+    printf("xl is %i, yl is %i, zl is %i\n", xl, yl, zl);
+  }
 }
 
 /*

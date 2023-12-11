@@ -13,6 +13,6 @@
 #include "main.h"
 
 extern TaskHandle_t update_task;
-extern TaskHandle_t draw_task;
+extern TaskHandle_t clear_task;
 void task_active_init();
 #endif

@@ -48,7 +48,7 @@ void task_send_score()
     {
         score_message.player_one_score = player_one_;
         score_message.player_two_score = player_two_;
-        xQueueSend(send_score_queue, &score_message, portMAX_DELAY);
+        xQueueSend(send_score_queue, &score_message, 5);
     }
 }
 

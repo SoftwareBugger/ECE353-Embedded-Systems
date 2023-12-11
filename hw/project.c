@@ -67,7 +67,7 @@ void proj_main_app(void)
     player_selection_queue = xQueueCreate(1, sizeof(bool));
     player1_claimed = false;
     isplayer1 = false;
-    playerX = paddleLeftWidthPixels/2;
+    playerX = paddleLeftWidthPixels/2 + 1;
     playerY = SCREEN_Y/2;
     ballX = paddleLeftWidthPixels + 10 + ballWidthPixels/2;
     ballY = SCREEN_Y/2;
@@ -85,6 +85,7 @@ void proj_main_app(void)
     // task_draw_init();
     srand(time(NULL));
     task_button_init();
+    player1_claimed = true;
     task_active_init();
     task_score_init();
     vTaskStartScheduler();
@@ -98,7 +99,6 @@ void proj_main_app(void)
 void proj_periph_init(void)
 {
     // initialize push buttons
-    push_buttons_init();
 
     // initialize LCD
     ece353_enable_lcd();
@@ -111,8 +111,8 @@ void proj_periph_init(void)
     remote_uart_enable_interrupts();
 
     // initialize spi
-    cy_rslt_t rslt = spi_init();
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
+
+    // // /* Init test platform */
 
     // initialize i2c
     i2c_init();
