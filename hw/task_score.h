@@ -15,4 +15,10 @@
 extern TaskHandle_t maintain_score_task;
 extern TaskHandle_t draw_score_task;
 void task_score_init();
+
+typedef struct score_message_t
+{
+    uint8_t player_one_score;
+    uint8_t player_two_score;
+} score_message_t;
 #endif

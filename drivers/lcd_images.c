@@ -710,8 +710,10 @@ const uint16_t welcomeHeightPixels = 201;
 const uint16_t numberWidthPixels = 18;
 const uint16_t numberHeightPixels = 24;
 
-const uint8_t zero_bitmaps[] = {
-/* @0 '0' (18 pixels wide) */
+/* Character bitmaps for Brussels 24pt */
+const uint8_t proj_num_bitmaps[] = 
+{
+	/* @0 '0' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x03, 0xF0, 0x00, //       ######      
 	0x07, 0xF8, 0x00, //      ########     
@@ -735,8 +737,7 @@ const uint8_t zero_bitmaps[] = {
 	0x0E, 0x1C, 0x00, //     ###    ###    
 	0x07, 0xF8, 0x00, //      ########     
 	0x03, 0xF0, 0x00, //       ######      
-};
-const uint8_t one_bitmaps[] = {
+
 	/* @69 '1' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x01, 0xC0, 0x00, //        ###        
@@ -761,8 +762,7 @@ const uint8_t one_bitmaps[] = {
 	0x01, 0xC0, 0x00, //        ###        
 	0x03, 0xE0, 0x00, //       #####       
 	0x1F, 0xFC, 0x00, //    ###########    
-};
-const uint8_t two_bitmaps[] = {
+
 	/* @138 '2' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x07, 0xF0, 0x00, //      #######      
@@ -787,8 +787,7 @@ const uint8_t two_bitmaps[] = {
 	0x3F, 0xFF, 0x00, //   ##############  
 	0x7F, 0xFF, 0x00, //  ###############  
 	0x7F, 0xFF, 0x00, //  ###############  
-};
-const uint8_t three_bitmaps[] = {
+
 	/* @207 '3' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x03, 0xF0, 0x00, //       ######      
@@ -813,8 +812,7 @@ const uint8_t three_bitmaps[] = {
 	0x3C, 0x0E, 0x00, //   ####      ###   
 	0x1F, 0xFC, 0x00, //    ###########    
 	0x07, 0xF0, 0x00, //      #######      
-};
-const uint8_t four_bitmaps[] = {
+
 	/* @276 '4' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x00, 0x1C, 0x00, //            ###    
@@ -839,8 +837,7 @@ const uint8_t four_bitmaps[] = {
 	0x00, 0x1C, 0x00, //            ###    
 	0x00, 0x3E, 0x00, //           #####   
 	0x00, 0xFF, 0x80, //         ######### 
-};
-const uint8_t five_bitmaps[] = {
+
 	/* @345 '5' (18 pixels wide) */
 	0x00, 0x03, 0x00, //               ##  
 	0x3F, 0xFE, 0x00, //   #############   
@@ -865,8 +862,7 @@ const uint8_t five_bitmaps[] = {
 	0x3C, 0x1E, 0x00, //   ####     ####   
 	0x1F, 0xFC, 0x00, //    ###########    
 	0x07, 0xF0, 0x00, //      #######      
-};
-const uint8_t six_bitmaps[] = {
+
 	/* @414 '6' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x01, 0xF8, 0x00, //        ######     
@@ -891,8 +887,7 @@ const uint8_t six_bitmaps[] = {
 	0x1E, 0x0E, 0x00, //    ####     ###   
 	0x0F, 0xFC, 0x00, //     ##########    
 	0x03, 0xF0, 0x00, //       ######      
-};
-const uint8_t seven_bitmaps[] = {
+
 	/* @483 '7' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x3F, 0xFF, 0x80, //   ############### 
@@ -917,8 +912,7 @@ const uint8_t seven_bitmaps[] = {
 	0x01, 0xC0, 0x00, //        ###        
 	0x03, 0xC0, 0x00, //       ####        
 	0x03, 0xC0, 0x00, //       ####        
-};
-const uint8_t eight_bitmaps[] = {
+
 	/* @552 '8' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x07, 0xF0, 0x00, //      #######      
@@ -943,8 +937,7 @@ const uint8_t eight_bitmaps[] = {
 	0x7C, 0x0F, 0x00, //  #####      ####  
 	0x1F, 0xFE, 0x00, //    ############   
 	0x07, 0xF8, 0x00, //      ########     
-};
-const uint8_t nine_bitmaps[] = {
+
 	/* @621 '9' (18 pixels wide) */
 	0x00, 0x00, 0x00, //                   
 	0x03, 0xF0, 0x00, //       ######      
@@ -969,4 +962,44 @@ const uint8_t nine_bitmaps[] = {
 	0x3C, 0x1E, 0x00, //   ####     ####   
 	0x1F, 0xF8, 0x00, //    ##########     
 	0x07, 0xE0, 0x00, //      ######       
+
+	/* @690 ':' (18 pixels wide) */
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x70, 0x00, //          ###      
+	0x00, 0xF8, 0x00, //         #####     
+	0x00, 0xF8, 0x00, //         #####     
+	0x00, 0xF8, 0x00, //         #####     
+	0x00, 0x70, 0x00, //          ###      
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x00, 0x00, //                   
+	0x00, 0x70, 0x00, //          ###      
+	0x00, 0xF8, 0x00, //         #####     
+	0x00, 0xF8, 0x00, //         #####     
+	0x00, 0xF8, 0x00, //         #####     
+	0x00, 0x70, 0x00, //          ###      
+};
+
+const uint16_t proj_num_offset[] = 
+{
+	0, 		/* 0 */ 
+	69, 		/* 1 */ 
+	138, 		/* 2 */ 
+	207, 		/* 3 */ 
+	276, 		/* 4 */ 
+	345, 		/* 5 */ 
+	414, 		/* 6 */ 
+	483, 		/* 7 */ 
+	552, 		/* 8 */ 
+	621, 		/* 9 */ 
+	690 		/* : */ 
 };

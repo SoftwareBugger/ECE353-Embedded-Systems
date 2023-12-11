@@ -39,14 +39,6 @@ extern const uint16_t welcomeHeightPixels;
 
 extern const uint16_t numberWidthPixels;
 extern const uint16_t numberHeightPixels;
-extern const uint8_t zero_bitmaps[];
-extern const uint8_t one_bitmaps[];
-extern const uint8_t two_bitmaps[];
-extern const uint8_t three_bitmaps[];
-extern const uint8_t four_bitmaps[];
-extern const uint8_t five_bitmaps[];
-extern const uint8_t six_bitmaps[];
-extern const uint8_t seven_bitmaps[];
-extern const uint8_t eight_bitmaps[];
-extern const uint8_t nine_bitmaps[];
+extern const uint8_t proj_num_bitmaps[];
+extern const uint16_t proj_num_offset[];
 #endif

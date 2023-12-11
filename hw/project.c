@@ -50,6 +50,7 @@ void task_score(void *pvParameters);
 
 QueueHandle_t position_queue;
 QueueHandle_t player_selection_queue;
+QueueHandle_t send_score_queue;
 
 
 
@@ -85,6 +86,7 @@ void proj_main_app(void)
     // task_button_init();
     player1_claimed = true;
     task_active_init();
+    task_score_init();
     vTaskStartScheduler();
 
     while (1)

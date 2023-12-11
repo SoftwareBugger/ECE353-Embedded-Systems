@@ -12,11 +12,15 @@
 #include "lcd_images.h"
 extern cyhal_uart_t remote_uart_obj;
 TaskHandle_t maintain_score_task;
-TaskHandle_t draw_score_task;
-int player_one_score;
-int player_two_score;
+TaskHandle_t send_score_task;
+score_message_t score_message;
 QueueHandle_t inactive_queue;
 QueueHandle_t active_queue;
+extern QueueHandle_t send_score_queue;
+uint8_t player_one_ = 0;
+uint8_t player_two_ = 0;
+
+
 
 void task_maintain_score()
 {
@@ -26,13 +30,14 @@ void task_maintain_score()
     }
 }
 
-void task_draw_score()
-{
-    // while(1)
-    // {
-    //         lcd_draw_image(LEFT_BOUND + 40, UPPER_BOUND - 40 , 
-    //         numberWidthPixels, numberHeightPixels, &zero_bitmaps, LCD_COLOR_ORANGE, LCD_COLOR_BLACK);
-    // }
+void task_send_score()
+{   
+    while(1)
+    {
+        score_message.player_one_score = player_one_;
+        score_message.player_two_score = player_two_;
+        xQueueSend(send_score_queue, &score_message, portMAX_DELAY);
+    }
 }
 
 void task_score_init()
@@ -43,9 +48,12 @@ void task_score_init()
     NULL, 
     2, &maintain_score_task);
 
-    xTaskCreate(task_draw_score, 
-    "Draw Score", 
+    xTaskCreate(task_send_score, 
+    "Send Score", 
     configMINIMAL_STACK_SIZE,
     NULL, 
-    2, &draw_score_task);
+    2, &send_score_task);
+
+    send_score_queue = xQueueCreate(1, sizeof(score_message_t));
 }
+
