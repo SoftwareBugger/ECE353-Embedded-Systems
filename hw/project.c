@@ -51,6 +51,7 @@ void task_score(void *pvParameters);
 QueueHandle_t position_queue;
 QueueHandle_t player_selection_queue;
 QueueHandle_t send_score_queue;
+QueueHandle_t point_registered_queue;
 
 
 
