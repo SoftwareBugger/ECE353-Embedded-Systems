@@ -1,10 +1,11 @@
 #include "task_active.h"
 
 TaskHandle_t update_task;
-TaskHandle_t draw_player_task;
-TaskHandle_t draw_ball_task;
+TaskHandle_t draw_task;
+TaskHandle_t read_xl_task;
 bool cleared = false;
 int offset = SCREEN_X/8;
+stmdev_ctx_t dev_ctx;
 void task_update(void *pvParameters) {
     while (1) {
         static uint8_t counter = 0;
@@ -25,7 +26,8 @@ void task_update(void *pvParameters) {
             else if (ballY <= ballHeightPixels/2 + 2 || ballY >= SCREEN_Y - ballHeightPixels/2 - 2) balldy = -balldy;
             if (counter == 0) {
                 ballX = ballX + balldx;
-                ballY = ballY + balldy; 
+                ballY = ballY + balldy;
+                xTaskNotifyGive(draw_task);
             }         
             lcd_draw_image(ballX, ballY, ballHeightPixels, ballWidthPixels, ballBitmaps, LCD_COLOR_ORANGE, LCD_COLOR_BLACK);
             uint16_t fcolor = LCD_COLOR_BLUE;
@@ -34,7 +36,7 @@ void task_update(void *pvParameters) {
         }
     }
 }
-void task_draw_player(void *pvParameters) {
+void task_draw(void *pvParameters) {
     while (1) {
         if (player1_claimed) {
             if (!cleared) 
@@ -47,8 +49,15 @@ void task_draw_player(void *pvParameters) {
         }
     }
 }
-
+void task_read_xl(void *pvParameters) {
+    while (1) {
+        printf("here\n");
+        lsm6dsm_orientation();
+        printf("here hhh\n");
+    }
+}
 void task_active_init() {
-    xTaskCreate(task_draw_player, "Active task", configMINIMAL_STACK_SIZE, NULL, 2, &draw_player_task);
+    xTaskCreate(task_draw, "Active task", configMINIMAL_STACK_SIZE, NULL, 2, &draw_task);
     xTaskCreate(task_update, "update positions", configMINIMAL_STACK_SIZE, NULL, 2, &update_task);
+    xTaskCreate(task_read_xl, "read xl", configMINIMAL_STACK_SIZE, NULL, 2, &read_xl_task);
 }

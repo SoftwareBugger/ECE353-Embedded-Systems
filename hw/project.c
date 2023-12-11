@@ -82,8 +82,7 @@ void proj_main_app(void)
     // };
     // task_draw_init();
     srand(time(NULL));
-    // task_button_init();
-    player1_claimed = true;
+    task_button_init();
     task_active_init();
     vTaskStartScheduler();
 
@@ -108,15 +107,9 @@ void proj_periph_init(void)
     remote_uart_init();
     remote_uart_enable_interrupts();
 
-    // initialize timer, 10ms, priority is 3
-    // timer_init(&proj_timer_obj, &proj_timer_cfg, 1000000, proj_timer_handler);
-
     // initialize spi
     cy_rslt_t rslt = spi_init();
     CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-    
-    // imu
-    platform_init();
 
     // initialize i2c
     i2c_init();

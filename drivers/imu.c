@@ -97,10 +97,10 @@ void lsm6dsm_orientation(void)
   dev_ctx.write_reg = platform_write;
   dev_ctx.read_reg = platform_read;
 
-  /* Init test platform */
-  platform_init();
-  /* Wait sensor boot time */
-  platform_delay(15);
+  // /* Init test platform */
+  // platform_init();
+  // /* Wait sensor boot time */
+  // platform_delay(15);
   /* Check device ID */
   lsm6dsm_device_id_get(&dev_ctx, &whoamI);
 
@@ -137,8 +137,8 @@ void lsm6dsm_orientation(void)
   lsm6dsm_pin_int1_route_set(&dev_ctx, int_1_reg);
 
   /* Wait Events */
-  while (1)
-  {
+  // while (1)
+  // {
     lsm6dsm_all_sources_t all_source;
 
     /* Check if 6D Orientation events */
@@ -182,7 +182,7 @@ void lsm6dsm_orientation(void)
       tx_com(tx_buffer, strlen((char const *)tx_buffer));
       cyhal_system_delay_ms(50);
     }
-  }
+  // }
 }
 
 /*
