@@ -65,11 +65,11 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-static uint8_t whoamI, rst;
-static uint8_t tx_buffer[1000];
 
 /* Extern variables ----------------------------------------------------------*/
-
+stmdev_ctx_t dev_ctx;
+static uint8_t whoamI, rst;
+static uint8_t tx_buffer[1000];
 /* Private functions ---------------------------------------------------------*/
 
 /*
@@ -86,19 +86,19 @@ void tx_com(uint8_t *tx_buffer, uint16_t len);
 void platform_delay(uint32_t ms);
 void platform_init(void);
 
-/* Main Example --------------------------------------------------------------*/
 void lsm6dsm_orientation(void)
 {
   /* Initialize mems driver interface */
-  stmdev_ctx_t dev_ctx;
   lsm6dsm_int1_route_t int_1_reg;
   /* Uncomment if interrupt generation on 6D INT2 pin */
   // lsm6dsm_int2_route_t int_2_reg;
-  platform_init();
-  platform_delay(15);
   dev_ctx.write_reg = platform_write;
   dev_ctx.read_reg = platform_read;
 
+  /* Init test platform */
+  platform_init();
+  /* Wait sensor boot time */
+  platform_delay(15);
   /* Check device ID */
   lsm6dsm_device_id_get(&dev_ctx, &whoamI);
 
@@ -137,24 +137,121 @@ void lsm6dsm_orientation(void)
   /* Wait Events */
   while (1)
   {
-    uint8_t ctrl6_c;
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_CTRL6_C, &ctrl6_c, 1);
-    lsm6dsm_write_reg(&dev_ctx, IMU_REG_CTRL6_C, ctrl6_c & 0xEF, 1);
-    int16_t xl;
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTX_H_XL, &xl, 1);
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTX_L_XL, (char *)(&xl) + 1, 1);
+    lsm6dsm_all_sources_t all_source;
 
-    int16_t yl;
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTY_H_XL, &yl, 1);
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTY_L_XL, (char *)(&yl) + 1, 1);
+    /* Check if 6D Orientation events */
+    lsm6dsm_all_sources_get(&dev_ctx, &all_source);
 
-    int16_t zl = 1;
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTZ_H_XL, &zl, 1);
-    lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTZ_L_XL, (char *)(&zl) + 1, 1);
+    if (all_source.d6d_src.d6d_ia)
+    {
+      sprintf((char *)tx_buffer, "Orientation:  ");
 
-    printf("xl is %i, yl is %i, zl is %i\n", xl, yl, zl);
+      if (all_source.d6d_src.xh)
+      {
+        strcat((char *)tx_buffer, "XH");
+      }
+
+      if (all_source.d6d_src.xl)
+      {
+        strcat((char *)tx_buffer, "XL");
+      }
+
+      if (all_source.d6d_src.yh)
+      {
+        strcat((char *)tx_buffer, "YH");
+      }
+
+      if (all_source.d6d_src.yl)
+      {
+        strcat((char *)tx_buffer, "YL");
+      }
+
+      if (all_source.d6d_src.zh)
+      {
+        strcat((char *)tx_buffer, "ZH");
+      }
+
+      if (all_source.d6d_src.zl)
+      {
+        strcat((char *)tx_buffer, "ZL");
+      }
+
+      strcat((char *)tx_buffer, "\r\n");
+      tx_com(tx_buffer, strlen((char const *)tx_buffer));
+      cyhal_system_delay_ms(50);
+    }
   }
 }
+
+// /* Main Example --------------------------------------------------------------*/
+// void lsm6dsm_orientation(void)
+// {
+//   /* Initialize mems driver interface */
+//   stmdev_ctx_t dev_ctx;
+//   lsm6dsm_int1_route_t int_1_reg;
+//   /* Uncomment if interrupt generation on 6D INT2 pin */
+//   // lsm6dsm_int2_route_t int_2_reg;
+//   platform_init();
+//   platform_delay(15);
+//   dev_ctx.write_reg = platform_write;
+//   dev_ctx.read_reg = platform_read;
+
+//   /* Check device ID */
+//   lsm6dsm_device_id_get(&dev_ctx, &whoamI);
+
+//   if (whoamI != LSM6DSM_ID)
+//   {
+//     printf("Device not found\n\r");
+//     while (1)
+//     {
+//       /* manage here device not found */
+//     }
+//   }
+
+//   /* Restore default configuration */
+//   lsm6dsm_reset_set(&dev_ctx, PROPERTY_ENABLE);
+
+//   do
+//   {
+//     lsm6dsm_reset_get(&dev_ctx, &rst);
+//   } while (rst);
+
+//   /* Set XL Output Data Rate */
+//   lsm6dsm_xl_data_rate_set(&dev_ctx, LSM6DSM_XL_ODR_416Hz);
+//   /* Set 2g full XL scale */
+//   lsm6dsm_xl_full_scale_set(&dev_ctx, LSM6DSM_2g);
+//   /* Set threshold to 60 degrees */
+//   lsm6dsm_6d_threshold_set(&dev_ctx, LSM6DSM_DEG_60);
+//   /* Use HP filter */
+//   lsm6dsm_xl_hp_path_internal_set(&dev_ctx, LSM6DSM_USE_HPF);
+//   /* LPF2 on 6D function selection */
+//   lsm6dsm_6d_feed_data_set(&dev_ctx, LSM6DSM_LPF2_FEED);
+//   /* Enable interrupt generation on 6D INT1 pin */
+//   lsm6dsm_pin_int1_route_get(&dev_ctx, &int_1_reg);
+//   int_1_reg.int1_6d = PROPERTY_ENABLE;
+//   lsm6dsm_pin_int1_route_set(&dev_ctx, int_1_reg);
+
+//   /* Wait Events */
+//   while (1)
+//   {
+//     uint8_t ctrl6_c;
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_CTRL6_C, &ctrl6_c, 1);
+//     lsm6dsm_write_reg(&dev_ctx, IMU_REG_CTRL6_C, ctrl6_c & 0xEF, 1);
+//     int16_t xl;
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTX_H_XL, &xl, 1);
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTX_L_XL, (char *)(&xl) + 1, 1);
+
+//     int16_t yl;
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTY_H_XL, &yl, 1);
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTY_L_XL, (char *)(&yl) + 1, 1);
+
+//     int16_t zl = 1;
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTZ_H_XL, &zl, 1);
+//     lsm6dsm_read_reg(&dev_ctx, IMU_REG_OUTZ_L_XL, (char *)(&zl) + 1, 1);
+
+//     printf("xl is %i, yl is %i, zl is %i\n", xl, yl, zl);
+//   }
+// }
 
 /*
  * @brief  Write generic device register (platform dependent)
