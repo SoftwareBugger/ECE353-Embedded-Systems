@@ -30,6 +30,7 @@ volatile bool active;
 bool player1_claimed;
 bool serve_ball;
 bool isplayer1;
+bool gameOver = false;
 // Player player;
 // Ball ball;
 uint16_t playerX;

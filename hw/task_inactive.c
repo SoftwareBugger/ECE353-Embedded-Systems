@@ -12,7 +12,14 @@
 extern score_message_t score_display;
 TaskHandle_t inactive_task;
 void task_update_inactive() {
+    uint8_t score[2];
+    if (ALERT_UART_RX) {
+            memset(data, 0, 3);
+
+            ALERT_UART_RX = false;
+    }
     while (1) {
+        remote_uart_rx_data_async()
         if (!active && player1_claimed && !ball_crossed) {
             int8_t data[3];
             if (ALERT_UART_RX) {

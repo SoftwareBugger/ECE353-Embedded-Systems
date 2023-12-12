@@ -37,26 +37,6 @@ void sw1_handler()
      * interrupt to yield*/
 }
 
-// void sw2_handler(void *handler_arg, cyhal_gpio_event_t event)
-// {
-//     BaseType_t xHigherPriorityTaskWoken;
-
-//     /* The xHigherPriorityTaskWoken parameter must be initialized to pdFALSE as
-//      it will get set to pdTRUE inside the interrupt safe API function if a
-//      context switch is required. */
-//     xHigherPriorityTaskWoken = pdFALSE;
-
-//     /* ADD CODE */
-//     /* Send a notification directly to the task to which interrupt processing
-//      * is being deferred.
-//      */
-
-
-
-//     /* ADD CODE */
-//     /* Call the function that will force the task that was running prior to the
-//      * interrupt to yield*/
-// }
 void sw1_irq_enable(void)
 {
     sw1_callback_data.callback = sw1_handler;
@@ -64,12 +44,6 @@ void sw1_irq_enable(void)
     cyhal_gpio_enable_event(PIN_SW1, CYHAL_GPIO_IRQ_FALL, 3, true);
 }
 
-// void sw2_irq_enable(void)
-// {
-//     sw2_callback_data.callback = sw2_handler;
-//     cyhal_gpio_register_callback(PIN_SW2, &sw2_callback_data);
-//     cyhal_gpio_enable_event(PIN_SW2, CYHAL_GPIO_IRQ_FALL, 4, true);
-// }
 void task_select() {
     while (1) {
         printf("called\n");

@@ -18,6 +18,7 @@ TaskHandle_t read_xl_task;
 bool cleared = false;
 bool ball_crossed;
 int offset = SCREEN_X/8;
+extern bool gameOver;
 
 
 extern QueueHandle_t send_score_queue;
@@ -61,7 +62,8 @@ void task_update(void *pvParameters) {
     while (1) {
         static uint8_t counter = 0;
         counter = (counter + 1)%1;
-        if (player1_claimed && cleared) {
+        
+        if (player1_claimed && cleared && !gameOver) {
             if (active) {
                 if (!cleared) {
                     xTaskNotifyGive(clear_task);
@@ -72,32 +74,6 @@ void task_update(void *pvParameters) {
                 }
                 if (ballX <= ballWidthPixels/2 + 5) {
                     balldx = -balldx;
-// <<<<<<< HEAD
-//                   }
-//             else if (ballX <= ballWidthPixels/2 + 2 || ballX >= SCREEN_X - ballWidthPixels/2 - 2) 
-//             {
-//                     PORT_RGB_RED->OUT_SET = MASK_RGB_RED;
-//                     cyhal_system_delay_ms(1000);
-//                     PORT_RGB_RED->OUT_CLR = MASK_RGB_RED;
-//                     balldx = -balldx;
-//             }
-//             else if (ballY <= ballHeightPixels/2 + 2 || ballY >= SCREEN_Y - ballHeightPixels/2 - 2) 
-//             { 
-//                 PORT_RGB_RED->OUT_SET = MASK_RGB_GRN;
-//                 cyhal_system_delay_ms(1000);
-//                 PORT_RGB_RED->OUT_CLR = MASK_RGB_GRN;
-//                 char* string = ("%C, %C, %C"), ballX, balldx, balldy;
-//                 remote_uart_tx_data_async(string);
-//             }
-//             if (counter == 0) {
-//                 ballX = ballX + balldx;
-//                 ballY = ballY + balldy; 
-//             }         
-//             lcd_draw_image(ballX, ballY, ballHeightPixels, ballWidthPixels, ballBitmaps, LCD_COLOR_ORANGE, LCD_COLOR_BLACK);
-//             uint16_t fcolor = LCD_COLOR_BLUE;
-//             if (isplayer1) fcolor = LCD_COLOR_RED;
-//             lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, fcolor, LCD_COLOR_BLACK);
-// =======
                     if (balldx == 0) balldx = (rand() % 2) + 1;
                     bool reg = false;
                     if (isplayer1) {
@@ -184,17 +160,50 @@ void task_update(void *pvParameters) {
                 lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, fcolor, LCD_COLOR_BLACK);
                 vTaskDelay(10);
             }
+            remote_uart_tx_data_async();
             xQueueReceive(send_score_queue, &score_display, portMAX_DELAY);
+            if (score_display.player_one_score == 9 || score_display.player_two_score == 9) {
+                gameOver = true;
+            }
             uint8_t *one_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_one_score]];
             uint8_t *two_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_two_score]];
             uint8_t *colon_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[10]];
-            lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
-            numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-            lcd_draw_image(RIGHT_BOUND - 80, UPPER_BOUND - 40, numberWidthPixels, 
-            numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-            lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
-            numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-        }
+            if (gameOver){
+                                
+                lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 80, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, two_bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
+                numberHeightPixels, colon_bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+                lcd_draw_image((SCREEN_X)/2, (SCREEN_Y)/2, gameOverWidthPixels, gameOverHeightPixels, gameOverBitmaps,LCD_COLOR_GREEN, LCD_COLOR_BLACK);
+                if (one_bitmap == 9){
+                lcd_draw_image(RIGHT_BOUND - 140, UPPER_BOUND - 60, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_GREEN, LCD_COLOR_BLACK); 
+                } else {
+                    lcd_draw_image(RIGHT_BOUND - 140, UPPER_BOUND - 60, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK); 
+                }
+                if (two_bitmap == 9){
+                    lcd_draw_image(RIGHT_BOUND - 180, UPPER_BOUND - 60, numberWidthPixels, 
+                    numberHeightPixels, two_bitmap, LCD_COLOR_GREEN, LCD_COLOR_BLACK);
+                } else {
+                    lcd_draw_image(RIGHT_BOUND - 180, UPPER_BOUND - 60, numberWidthPixels, 
+                    numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);  
+                }
+                lcd_draw_image(RIGHT_BOUND - 160, UPPER_BOUND - 60, numberWidthPixels,
+                numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                
+            }
+            else {
+                lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 80, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
+                numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+            }
+            }
     }
 }
 void task_clear(void *pvParameters) {
@@ -229,7 +238,7 @@ void task_read_xl(void *pvParameters) {
   if (whoamI != LSM6DSM_ID)
   {
     printf("Device not found\n\r");
-    while (whoamI != LSM6DSM_ID)
+    while (1)
     {
       /* manage here device not found */
     }
