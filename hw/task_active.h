@@ -13,7 +13,8 @@
 #include "main.h"
 
 extern TaskHandle_t update_task;
-extern TaskHandle_t draw_player_task;
-extern TaskHandle_t draw_ball_task;
+extern TaskHandle_t clear_task;
+extern bool cleared;
+extern bool ball_crossed;
 void task_active_init();
 #endif

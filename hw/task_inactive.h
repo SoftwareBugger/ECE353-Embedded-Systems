@@ -11,11 +11,6 @@
 #ifndef __TASK_INACTIVE_H__
 #define __TASK_INACTIVE_H__
 #include "main.h"
-
-typedef struct TurnInfo {
-    uint16_t ballX;
-    uint16_t balldx;
-    uint16_t balldy;
-};
-#define portMAX_DELAY             ( TickType_t ) 0xffffffffUL
+extern TaskHandle_t inactive_task;
+void task_inactive_init();
 #endif

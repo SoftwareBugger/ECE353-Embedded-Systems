@@ -72,6 +72,7 @@ void sw1_irq_enable(void)
 // }
 void task_select() {
     while (1) {
+        printf("called\n");
         ulTaskNotifyTake(true, portMAX_DELAY);
         remote_uart_tx_char_async(CLAIME_PLAYER1);
         remote_uart_tx_char_async('\n');
@@ -79,9 +80,10 @@ void task_select() {
 }
 void task_ack() {
     while (1) {
-        if (!player1_claimed) {
+        if (!player1_claimed && ALERT_UART_RX) {
             char msg;
             remote_uart_rx_data_async(&msg, 1);
+            ALERT_UART_RX = false;
             if (msg == ACK) {
                 player1_claimed = true;
                 isplayer1 = true;
@@ -93,6 +95,7 @@ void task_ack() {
             else if (msg == CLAIME_PLAYER1) {
                 player1_claimed = true;
                 isplayer1 = false;
+                active = false;
                 remote_uart_tx_char_async(ACK);
                 remote_uart_tx_char_async('\n');
                 vTaskDelete(select_task);
@@ -102,6 +105,7 @@ void task_ack() {
     }
 }
 void task_button_init() {
+    push_buttons_init();
     sw1_irq_enable();
     lcd_draw_image(
         (SCREEN_X)/2,

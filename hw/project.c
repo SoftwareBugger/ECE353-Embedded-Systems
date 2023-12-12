@@ -26,7 +26,7 @@ extern cyhal_uart_t remote_uart_obj;
 cy_rslt_t proj_rslt;
 
 bool joystick_enabled;
-bool active;
+volatile bool active;
 bool player1_claimed;
 bool serve_ball;
 bool isplayer1;
@@ -35,21 +35,17 @@ bool isplayer1;
 uint16_t playerX;
 uint16_t playerY;
 uint16_t ballX;
-uint16_t ballY;
-uint16_t balldx;
-uint16_t balldy;
+uint8_t ballY;
+int8_t balldx;
+int8_t balldy;
 int16_t angle;
 
 // MOVE TO INDIVIDUAL TASK FILES 
-TaskHandle_t send_task;
-void task_send(void *pvParamaters);
-TaskHandle_t inactive_task;
-void task_inactive(void *pvParameters);
-TaskHandle_t score_task;
-void task_score(void *pvParameters);
 
 QueueHandle_t position_queue;
 QueueHandle_t player_selection_queue;
+QueueHandle_t send_score_queue;
+QueueHandle_t point_registered_queue;
 
 uint16_t activeScore = 0;
 uint16_t inactiveScore = 0;
@@ -68,7 +64,7 @@ void proj_main_app(void)
     position_queue = xQueueCreate(1, 50);
     player1_claimed = false;
     isplayer1 = false;
-    playerX = paddleLeftWidthPixels/2;
+    playerX = paddleLeftWidthPixels/2 + 1;
     playerY = SCREEN_Y/2;
     ballX = paddleLeftWidthPixels + 10 + ballWidthPixels/2;
     ballY = SCREEN_Y/2;
@@ -85,9 +81,10 @@ void proj_main_app(void)
     // };
     // task_draw_init();
     srand(time(NULL));
-    // task_button_init();
-    player1_claimed = true;
+    task_button_init();
     task_active_init();
+    task_inactive_init();
+    task_score_init();
     vTaskStartScheduler();
 
     while (1)
@@ -99,7 +96,6 @@ void proj_main_app(void)
 void proj_periph_init(void)
 {
     // initialize push buttons
-    push_buttons_init();
 
     // initialize LCD
     ece353_enable_lcd();
@@ -111,15 +107,9 @@ void proj_periph_init(void)
     remote_uart_init();
     remote_uart_enable_interrupts();
 
-    // initialize timer, 10ms, priority is 3
-    // timer_init(&proj_timer_obj, &proj_timer_cfg, 1000000, proj_timer_handler);
-
     // initialize spi
-    cy_rslt_t rslt = spi_init();
-    CY_ASSERT(rslt == CY_RSLT_SUCCESS);
-    
-    // imu
-    platform_init();
+
+    // // /* Init test platform */
 
     // initialize i2c
     i2c_init();
