@@ -15,6 +15,7 @@
 #include "task_active.h"
 #include "task_buttons.h"
 #include "task_score.h"
+#include "task_inactive.h"
 
 #define SCREEN_X            320
 #define SCREEN_Y            240
@@ -47,7 +48,7 @@
 #define ACK_BYTE                  0xF0
 
 extern char PROJ_DESCRIPTION[];
-extern bool active;
+extern volatile bool active;
 extern bool player1_claimed;
 extern bool isplayer1;
 extern bool serve_ball;
@@ -57,9 +58,9 @@ extern QueueHandle_t point_registered_queue;
 extern uint16_t playerX;
 extern uint16_t playerY;
 extern uint16_t ballX;
-extern uint16_t ballY;
-extern uint16_t balldx;
-extern uint16_t balldy;
+extern uint8_t ballY;
+extern int8_t balldx;
+extern int8_t balldy;
 // extern Player player;
 // typedef struct player {
 //     uint16_t x_pos_center; // center position x of the player(paddle)

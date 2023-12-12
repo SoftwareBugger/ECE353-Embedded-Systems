@@ -26,7 +26,7 @@ extern cyhal_uart_t remote_uart_obj;
 cy_rslt_t proj_rslt;
 
 bool joystick_enabled;
-bool active;
+volatile bool active;
 bool player1_claimed;
 bool serve_ball;
 bool isplayer1;
@@ -35,18 +35,12 @@ bool isplayer1;
 uint16_t playerX;
 uint16_t playerY;
 uint16_t ballX;
-uint16_t ballY;
-uint16_t balldx;
-uint16_t balldy;
+uint8_t ballY;
+int8_t balldx;
+int8_t balldy;
 int16_t angle;
 
 // MOVE TO INDIVIDUAL TASK FILES 
-TaskHandle_t send_task;
-void task_send(void *pvParamaters);
-TaskHandle_t inactive_task;
-void task_inactive(void *pvParameters);
-TaskHandle_t score_task;
-void task_score(void *pvParameters);
 
 QueueHandle_t position_queue;
 QueueHandle_t player_selection_queue;
@@ -85,8 +79,8 @@ void proj_main_app(void)
     // task_draw_init();
     srand(time(NULL));
     task_button_init();
-    player1_claimed = true;
     task_active_init();
+    task_inactive_init();
     task_score_init();
     vTaskStartScheduler();
 
