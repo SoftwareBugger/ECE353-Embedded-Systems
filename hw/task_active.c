@@ -1,3 +1,13 @@
+/**
+ * @file task_active.c
+ * @author Adam Boho, Han Lyu, Dom Valentini
+ * @brief 
+ * @version 0.1
+ * @date 2023-08-25
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "task_active.h"
 #include "lcd_images.h"
 
@@ -8,6 +18,7 @@ TaskHandle_t read_xl_task;
 bool cleared = false;
 bool ball_crossed;
 int offset = SCREEN_X/8;
+extern bool gameOver;
 
 
 extern QueueHandle_t send_score_queue;
@@ -51,7 +62,8 @@ void task_update(void *pvParameters) {
     while (1) {
         static uint8_t counter = 0;
         counter = (counter + 1)%1;
-        if (player1_claimed && cleared) {
+        
+        if (player1_claimed && cleared && !gameOver) {
             if (active) {
                 xQueueReceive(send_score_queue, &score_display, portMAX_DELAY);
                 uint8_t *one_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_one_score]];
@@ -82,14 +94,19 @@ void task_update(void *pvParameters) {
                         xQueueSend(point_registered_queue, &reg, 5);
                     }
                 }
+                //If ballY coordinate is recognizing a colosion with the bottom
                 if (ballY <= ballHeightPixels/2 + 5) {
                     balldy = -balldy;
+                    //if ball speed is 0, give it a random pos value
                     if (balldy == 0) balldy = (rand() % 2) + 1;
                 }
+                //If ballY coordinate is recognizing a colosion with the top
                 if (ballY >= SCREEN_Y - ballHeightPixels/2 - 5) {
                     balldy = -balldy;
+                    //if ball speed is 0, give it a random neg value
                     if (balldy == 0) balldy = -(rand() % 2) - 1;
                 }
+                //If ballX Coord is coliding with the 
                 if (ballX >= SCREEN_X - ballWidthPixels/2 - 5 && balldx > 0) {
                     balldx = -balldx;
                     if (balldx == 0) balldx = -(rand() % 2) - 1;
@@ -153,7 +170,50 @@ void task_update(void *pvParameters) {
                 if (isplayer1) fcolor = LCD_COLOR_RED;
                 lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, fcolor, LCD_COLOR_BLACK);
             }
-        }
+
+            xQueueReceive(send_score_queue, &score_display, portMAX_DELAY);
+            if (score_display.player_one_score == 9 || score_display.player_two_score == 9) {
+                gameOver = true;
+            }
+            uint8_t *one_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_one_score]];
+            uint8_t *two_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_two_score]];
+            uint8_t *colon_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[10]];
+            if (gameOver){
+                                
+                lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 80, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, two_bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
+                numberHeightPixels, colon_bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
+                lcd_draw_image((SCREEN_X)/2, (SCREEN_Y)/2, gameOverWidthPixels, gameOverHeightPixels, gameOverBitmaps,LCD_COLOR_GREEN, LCD_COLOR_BLACK);
+                if (one_bitmap == 9){
+                lcd_draw_image(RIGHT_BOUND - 140, UPPER_BOUND - 60, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_GREEN, LCD_COLOR_BLACK); 
+                } else {
+                    lcd_draw_image(RIGHT_BOUND - 140, UPPER_BOUND - 60, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK); 
+                }
+                if (two_bitmap == 9){
+                    lcd_draw_image(RIGHT_BOUND - 180, UPPER_BOUND - 60, numberWidthPixels, 
+                    numberHeightPixels, two_bitmap, LCD_COLOR_GREEN, LCD_COLOR_BLACK);
+                } else {
+                    lcd_draw_image(RIGHT_BOUND - 180, UPPER_BOUND - 60, numberWidthPixels, 
+                    numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);  
+                }
+                lcd_draw_image(RIGHT_BOUND - 160, UPPER_BOUND - 60, numberWidthPixels,
+                numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                
+            }
+            else {
+                lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 80, UPPER_BOUND - 40, numberWidthPixels, 
+                numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
+                numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+            }
+            }
     }
 }
 void task_clear(void *pvParameters) {
@@ -178,9 +238,9 @@ void task_read_xl(void *pvParameters) {
 void task_active_init() {
     // /* Wait sensor boot time */
     //xTaskCreate(task_move_paddle, "move paddle", configMINIMAL_STACK_SIZE, NULL, 2, &paddle_task);
-    //xTaskCreate(task_clear, "Active task", configMINIMAL_STACK_SIZE, NULL, 2, &clear_task);
-    //xTaskCreate(task_update, "update positions", configMINIMAL_STACK_SIZE, NULL, 2, &update_task);
-    xTaskCreate(task_read_xl, "read xl", configMINIMAL_STACK_SIZE, NULL, 2, &read_xl_task);
+    xTaskCreate(task_clear, "Active task", configMINIMAL_STACK_SIZE, NULL, 2, &clear_task);
+    xTaskCreate(task_update, "update positions", configMINIMAL_STACK_SIZE, NULL, 2, &update_task);
+    //xTaskCreate(task_read_xl, "read xl", configMINIMAL_STACK_SIZE, NULL, 2, &read_xl_task);
 }
 
 

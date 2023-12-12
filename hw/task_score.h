@@ -1,9 +1,9 @@
 /**
  * @file task_score.h
- * @author Dominic Valentini
+ * @author Adam Boho, Han Lyu, Dom Valentini
  * @brief 
  * @version 0.1
- * @date 2023-12-10
+ * @date 2023-08-25
  * 
  * @copyright Copyright (c) 2023
  * 

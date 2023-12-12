@@ -1,10 +1,10 @@
 /**
  * @file task_score.c
- * @author Dominic Valentini
+<<<<<<< HEAD
+ * @author Adam Boho, Han Lyu, Dom Valentini
  * @brief 
  * @version 0.1
- * @date 2023-12-10
- * 
+ * @date 2023-08-25
  * @copyright Copyright (c) 2023
  * 
  */
@@ -21,7 +21,7 @@ extern QueueHandle_t point_registered_queue;
 bool registered_score;
 uint8_t player_one_ = 0;
 uint8_t player_two_ = 0;
-
+extern bool gameOver;
 
 
 void task_maintain_score()
@@ -29,15 +29,24 @@ void task_maintain_score()
     while(1)
     {
         // If registered score is a 0, it means player two has scored and should be sent from the active task
-        // IF registered score is a 1, it means player one has scored and should be sent from the inactive task
+        // If registered score is a 1, it means player one has scored and should be sent from the inactive task
         xQueueReceive(point_registered_queue, &registered_score, portMAX_DELAY);
-        if (registered_score)
-        {
-            player_one_ = score_message.player_one_score + 1;
+        if (score_message.player_one_score == 9 || score_message.player_two_score == 9) {
+
         }
-        else
-        {
-            player_two_ = score_message.player_two_score + 1;
+        else {
+            if (registered_score)
+            {
+                player_one_ = score_message.player_one_score + 1;
+            }
+            else
+            {
+                player_two_ = score_message.player_two_score + 1;
+            }
+            if (score_message.player_one_score == 9 || score_message.player_two_score == 9) {
+            gameOver = true;
+            }
+
         }
     }
 }

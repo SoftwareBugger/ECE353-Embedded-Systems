@@ -1,7 +1,18 @@
+/**
+ * @file task_inactive.h
+ * @author Adam Boho, Han Lyu, Dom Valentini
+ * @brief 
+ * @version 0.1
+ * @date 2023-08-25
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "task_inactive.h"
 extern score_message_t score_display;
 TaskHandle_t inactive_task;
 void task_update_inactive() {
+    uint8_t score[2];
     while (1) {
         if (!active && player1_claimed && !ball_crossed) {
             int8_t data[4];

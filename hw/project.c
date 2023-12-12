@@ -30,6 +30,7 @@ volatile bool active;
 bool player1_claimed;
 bool serve_ball;
 bool isplayer1;
+bool gameOver = false;
 // Player player;
 // Ball ball;
 uint16_t playerX;
@@ -47,6 +48,8 @@ QueueHandle_t player_selection_queue;
 QueueHandle_t send_score_queue;
 QueueHandle_t point_registered_queue;
 
+uint16_t activeScore = 0;
+uint16_t inactiveScore = 0;
 
 
 /*****************************************************************************/
@@ -59,6 +62,7 @@ QueueHandle_t point_registered_queue;
 void proj_main_app(void)
 {
     player_selection_queue = xQueueCreate(1, sizeof(bool));
+    position_queue = xQueueCreate(1, 50);
     player1_claimed = false;
     isplayer1 = false;
     playerX = paddleLeftWidthPixels/2 + 1;
@@ -78,12 +82,12 @@ void proj_main_app(void)
     // };
     // task_draw_init();
     srand(time(NULL));
-    //task_button_init();
+    task_button_init();
     // player1_claimed = true;
     // active = true;
     task_active_init();
-    //task_inactive_init();
-    //task_score_init();
+    task_inactive_init();
+    task_score_init();
     vTaskStartScheduler();
 
     while (1)
