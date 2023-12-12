@@ -1,6 +1,6 @@
 /**
- * @file task_select.h
- * @author Han Lyu
+ * @file task_buttons.h
+ * @author Han Lyu, Adam Boho, Dom Valencia
  * @brief Selects role of the players
  * @version 0.1
  * @date 2023-12-09
@@ -14,4 +14,6 @@
 extern TaskHandle_t select_task; 
 extern TaskHandle_t ack_task;
 void task_button_init();
+void task_ack();
+
 #endif

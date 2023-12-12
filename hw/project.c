@@ -51,6 +51,8 @@ void task_score(void *pvParameters);
 QueueHandle_t position_queue;
 QueueHandle_t player_selection_queue;
 
+uint16_t activeScore = 0;
+uint16_t inactiveScore = 0;
 
 
 /*****************************************************************************/
@@ -63,6 +65,7 @@ QueueHandle_t player_selection_queue;
 void proj_main_app(void)
 {
     player_selection_queue = xQueueCreate(1, sizeof(bool));
+    position_queue = xQueueCreate(1, 50);
     player1_claimed = false;
     isplayer1 = false;
     playerX = paddleLeftWidthPixels/2;

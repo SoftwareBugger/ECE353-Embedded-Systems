@@ -1,3 +1,13 @@
+/**
+ * @file task_active.c
+ * @author Adam Boho, Han Lyu, Dom Valencia
+ * @brief 
+ * @version 0.1
+ * @date 2023-08-25
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "task_active.h"
 
 TaskHandle_t update_task;
@@ -21,8 +31,21 @@ void task_update(void *pvParameters) {
                     balldy = (rand() % 3);
                     balldx = -balldx;
                   }
-            else if (ballX <= ballWidthPixels/2 + 2 || ballX >= SCREEN_X - ballWidthPixels/2 - 2) balldx = -balldx;
-            else if (ballY <= ballHeightPixels/2 + 2 || ballY >= SCREEN_Y - ballHeightPixels/2 - 2) balldy = -balldy;
+            else if (ballX <= ballWidthPixels/2 + 2 || ballX >= SCREEN_X - ballWidthPixels/2 - 2) 
+            {
+                    PORT_RGB_RED->OUT_SET = MASK_RGB_RED;
+                    cyhal_system_delay_ms(1000);
+                    PORT_RGB_RED->OUT_CLR = MASK_RGB_RED;
+                    balldx = -balldx;
+            }
+            else if (ballY <= ballHeightPixels/2 + 2 || ballY >= SCREEN_Y - ballHeightPixels/2 - 2) 
+            { 
+                PORT_RGB_RED->OUT_SET = MASK_RGB_GRN;
+                cyhal_system_delay_ms(1000);
+                PORT_RGB_RED->OUT_CLR = MASK_RGB_GRN;
+                char* string = ("%C, %C, %C"), ballX, balldx, balldy;
+                remote_uart_tx_data_async(string);
+            }
             if (counter == 0) {
                 ballX = ballX + balldx;
                 ballY = ballY + balldy; 

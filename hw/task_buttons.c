@@ -1,6 +1,6 @@
 /**
  * @file task_buttons.c
- * @author Han Lyu
+ * @author Han Lyu, Adam Boho, Dom Valencia
  * @brief 
  * @version 0.1
  * @date 2023-12-10

@@ -14,6 +14,8 @@
 #include "drivers/joystick.h"
 #include "task_active.h"
 #include "task_buttons.h"
+#include "task_inactive.h"
+#include "task_score.h"
 
 #define SCREEN_X            320
 #define SCREEN_Y            240
@@ -34,7 +36,6 @@
 #define PLAYER_LENGTH       24
 
 #define CLAIME_PLAYER1      0x11
-
 
 // ADC values
 #define JOYSTICK_UP               0xD173
