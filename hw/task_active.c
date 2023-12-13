@@ -15,16 +15,23 @@ TaskHandle_t update_task;
 TaskHandle_t paddle_task;
 TaskHandle_t clear_task;
 TaskHandle_t read_xl_task;
+TaskHandle_t light_task;
 bool cleared = false;
 bool ball_crossed;
 int offset = SCREEN_X/8;
 extern bool gameOver;
+bool light_en;
 
 
 extern QueueHandle_t send_score_queue;
+extern QueueHandle_t send_light_queue;
 score_message_t score_display;
 uint8_t bitmap_one[];
 uint8_t bitmap_two[];
+
+uint16_t colors[4] = {LCD_COLOR_BLUE, LCD_COLOR_CYAN, LCD_COLOR_RED, LCD_COLOR_MAGENTA};
+
+uint16_t active_color = LCD_COLOR_BLUE;
 
 bool in_contact() {
     return ((ballX - playerX < (ballWidthPixels + paddleLeftWidthPixels)/2 + 5) 
@@ -150,11 +157,10 @@ void task_update(void *pvParameters) {
                     ballX = ballX + balldx;
                     ballY = ballY + balldy;
                 }
-                uint16_t fcolor = LCD_COLOR_BLUE;
-                if (isplayer1) fcolor = LCD_COLOR_RED;
+                if (isplayer1) active_color = LCD_COLOR_RED;
                 
                 if (active) {
-                    lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, fcolor, LCD_COLOR_BLACK);
+                    lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, active_color, LCD_COLOR_BLACK);
                     lcd_draw_image(ballX, ballY, ballHeightPixels, ballWidthPixels, ballBitmaps, LCD_COLOR_ORANGE, LCD_COLOR_BLACK);
                 }
                 else {
@@ -166,9 +172,8 @@ void task_update(void *pvParameters) {
                 if (joystick_read_x() > JOYSTICK_THRESH_X_LEFT_2P475V && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
                 if (joystick_read_y() > JOYSTICK_THRESH_Y_UP_2P475V && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
                 if (joystick_read_y() < JOYSTICK_THRESH_Y_DOWN_0P825V && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
-                uint16_t fcolor = LCD_COLOR_BLUE;
-                if (isplayer1) fcolor = LCD_COLOR_RED;
-                lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, fcolor, LCD_COLOR_BLACK);
+                if (isplayer1) active_color = LCD_COLOR_RED;
+                lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, active_color, LCD_COLOR_BLACK);
             }
 
             xQueueReceive(send_score_queue, &score_display, portMAX_DELAY);
@@ -216,6 +221,32 @@ void task_update(void *pvParameters) {
             }
     }
 }
+
+void task_light()
+{
+    while (1)
+    {
+        static bool prev = true;
+        static int count = 0;
+        xQueueReceive(send_light_queue, &light_en, portMAX_DELAY);
+        
+
+        if (light_en && !prev && isplayer1)
+        {
+            active_color = colors[count + 2];
+            count = (count+1) % 2;
+        }
+        else if (light_en && !prev && !isplayer1)
+        {
+            active_color = colors[count];
+            count = (count+1) % 2;
+        }
+
+        prev = light_en;
+
+    }
+}
+
 void task_clear(void *pvParameters) {
     while (1) {
         ulTaskNotifyTake(true, 5);
@@ -241,6 +272,7 @@ void task_active_init() {
     xTaskCreate(task_clear, "Active task", configMINIMAL_STACK_SIZE, NULL, 2, &clear_task);
     xTaskCreate(task_update, "update positions", configMINIMAL_STACK_SIZE, NULL, 2, &update_task);
     //xTaskCreate(task_read_xl, "read xl", configMINIMAL_STACK_SIZE, NULL, 2, &read_xl_task);
+    xTaskCreate(task_light, "Light Task", configMINIMAL_STACK_SIZE, NULL, 2, &light_task);
 }
 
 

@@ -16,6 +16,7 @@
 #include "task_buttons.h"
 #include "task_inactive.h"
 #include "task_score.h"
+#include "task_sensor.h"
 
 
 #define SCREEN_X            320
@@ -55,6 +56,7 @@ extern bool serve_ball;
 extern QueueHandle_t position_queue;
 extern QueueHandle_t send_score_queue;
 extern QueueHandle_t point_registered_queue;
+extern QueueHandle_t send_light_queue;
 extern uint16_t playerX;
 extern uint16_t playerY;
 extern uint16_t ballX;

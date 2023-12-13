@@ -47,6 +47,7 @@ QueueHandle_t position_queue;
 QueueHandle_t player_selection_queue;
 QueueHandle_t send_score_queue;
 QueueHandle_t point_registered_queue;
+QueueHandle_t send_light_queue;
 
 uint16_t activeScore = 0;
 uint16_t inactiveScore = 0;
@@ -88,6 +89,7 @@ void proj_main_app(void)
     task_active_init();
     task_inactive_init();
     task_score_init();
+    task_sensor_init();
     vTaskStartScheduler();
 
     while (1)
