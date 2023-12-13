@@ -83,8 +83,8 @@ void proj_main_app(void)
     // task_draw_init();
     srand(time(NULL));
     task_button_init();
-    // player1_claimed = true;
-    // active = true;
+    //player1_claimed = true;
+    //active = true;
     task_active_init();
     task_inactive_init();
     task_score_init();
