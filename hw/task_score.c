@@ -30,11 +30,11 @@ void task_maintain_score()
     {
         // If registered score is a 0, it means player two has scored and should be sent from the active task
         // If registered score is a 1, it means player one has scored and should be sent from the inactive task
-        xQueueReceive(point_registered_queue, &registered_score, portMAX_DELAY);
+        BaseType_t rslt = xQueueReceive(point_registered_queue, &registered_score, 5);
         if (score_message.player_one_score == 9 || score_message.player_two_score == 9) {
 
         }
-        else {
+        else if (rslt == pdTRUE) {
             if (registered_score)
             {
                 player_one_ = score_message.player_one_score + 1;
