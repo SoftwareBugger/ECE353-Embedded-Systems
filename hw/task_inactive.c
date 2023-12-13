@@ -20,19 +20,24 @@ void task_update_inactive() {
                 memset(data, 0, 4);
                 remote_uart_rx_data_async(data, 4);
                 ALERT_UART_RX = false;
-                balldx = data[0];
-                balldy = data[1] - 6;
-                ballY = (uint8_t)data[2];
-                if (isplayer1) {
-                    score_display.player_one_score = data[3];
+                if (data[0] == 99) {
+                    bool reg = true;
+                    if (isplayer1) xQueueSend(point_registered_queue, &reg, portMAX_DELAY);
+                    else {
+                        reg = false;
+                        xQueueSend(point_registered_queue, &reg, portMAX_DELAY);
+                    }
+
                 }
                 else {
-                    score_display.player_two_score = data[3];
+                    balldx = data[0];
+                    balldy = data[1] - 6;
+                    ballY = (uint8_t)data[2];
+                    ballX = SCREEN_X - ballWidthPixels/2 - 5;
+                    printf("balldx :%i, balldy :%i, ballY :%u, ballX :%u\n", balldx, balldy, ballY, ballX);
+                    active = true;
+                    ball_crossed = true;
                 }
-                ballX = SCREEN_X - ballWidthPixels/2 - 5;
-                printf("balldx :%i, balldy :%i, ballY :%u, ballX :%u\n", balldx, balldy, ballY, ballX);
-                active = true;
-                ball_crossed = true;
             }
         }
     }

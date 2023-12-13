@@ -94,6 +94,10 @@ void task_update(void *pvParameters) {
                         reg = true;
                         xQueueSend(point_registered_queue, &reg, 5);
                     }
+                    remote_uart_tx_char_async(99);
+                    remote_uart_tx_char_async(99);
+                    remote_uart_tx_char_async(99);
+                    remote_uart_tx_char_async('\n');
                 }
                 //If ballY coordinate is recognizing a colosion with the bottom
                 if (ballY < ballHeightPixels/2 + 5) {
@@ -111,44 +115,44 @@ void task_update(void *pvParameters) {
                 if (ballX > SCREEN_X - ballWidthPixels/2 - 5 && balldx > 0) {
                     balldx = -balldx;
                     if (balldx == 0) balldx = -(rand() % 2) - 1;
-                    remote_uart_tx_char_async(balldx);
-                    remote_uart_tx_char_async(balldy + 6);
-                    remote_uart_tx_char_async(ballY);
-                    if (isplayer1) remote_uart_tx_char_async(score_display.player_one_score);
-                    else remote_uart_tx_char_async(score_display.player_two_score);
-                    remote_uart_tx_char_async('\n');
-                    active = false;
-                    ball_crossed = false;
-                    xTaskNotifyGive(inactive_task);
+                    // remote_uart_tx_char_async(balldx);
+                    // remote_uart_tx_char_async(balldy + 6);
+                    // remote_uart_tx_char_async(ballY);
+                    // if (isplayer1) remote_uart_tx_char_async(score_display.player_one_score);
+                    // else remote_uart_tx_char_async(score_display.player_two_score);
+                    // remote_uart_tx_char_async('\n');
+                    // active = false;
+                    // ball_crossed = false;
+                    // xTaskNotifyGive(inactive_task);
                 }
                 if (in_contact_right()) {
-                    if (playerX > paddleLeftWidthPixels/2 + 2) playerX -= 2;
+                    if (playerX > paddleLeftWidthPixels/2 + 5) playerX -= 2;
                     balldx = (rand() % 2) + 1;
                     balldy = (rand() % 3);
                 }
                 //else if (joystick_read_x() < JOYSTICK_THRESH_X_RIGHT_0P825V && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX++;  
-                else if (x < -10 && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX++;  
+                else if (x < -10 && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX += -(x/40);  
                 if (in_contact_left()) {
-                    if (playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX += 2;
+                    if (playerX < SCREEN_X - paddleLeftWidthPixels/2 - 5) playerX += 2;
                     balldx = -(rand() % 2) - 1;
                     balldy = (rand() % 3);
                 }
                 //else if (joystick_read_x() > JOYSTICK_THRESH_X_LEFT_2P475V && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
-                else if (x > 10 && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
+                else if (x > 10 && playerX > paddleLeftWidthPixels/2 + 5) playerX += -(x/40); 
                 if (in_contact_above()) {
-                    if (playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY += 2;
+                    if (playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 5) playerY += 2;
                     balldx = (rand() % 3);
                     balldy = -(rand() % 2) - 1;
                 }
                 //else if (joystick_read_y() > JOYSTICK_THRESH_Y_UP_2P475V && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
-                else if (y < -10 && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
+                else if (y < -10 && playerY > paddleLeftHeightPixels/2 + 5) playerY += (y/30); 
                 if (in_contact_below()) {
-                    if (playerY > paddleLeftHeightPixels/2 + 2)playerY -= 2;
+                    if (playerY > paddleLeftHeightPixels/2 + 5) playerY -= 2;
                     balldx = (rand() % 3);
                     balldy = (rand() % 2) + 1;
                 }
                 //else if (joystick_read_y() < JOYSTICK_THRESH_Y_DOWN_0P825V && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
-                else if (y > 10 && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
+                else if (y > 10 && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 5) playerY += (y/30); 
                 if (counter == 0) {
                     ballX = ballX + balldx;
                     ballY = ballY + balldy;
@@ -166,13 +170,13 @@ void task_update(void *pvParameters) {
             }
             else {
                 //if (joystick_read_x() < JOYSTICK_THRESH_X_RIGHT_0P825V && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX++;  
-                if (x < -10 && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX++; 
+                if (x < -10 && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 5) playerX += -(x/40); 
                 //if (joystick_read_x() > JOYSTICK_THRESH_X_LEFT_2P475V && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
-                if (x > 10 && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
+                if (x > 10 && playerX > paddleLeftWidthPixels/2 + 5) playerX += -(x/40); ;
                 //if (joystick_read_y() > JOYSTICK_THRESH_Y_UP_2P475V && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
-                if (y < -10 && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
+                if (y < -10 && playerY > paddleLeftHeightPixels/2 + 5) playerY += (y/30); ;
                 //if (joystick_read_y() < JOYSTICK_THRESH_Y_DOWN_0P825V && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
-                if (y > 10 && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
+                if (y > 10 && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 5) playerY += (y/30); ;
                 uint16_t fcolor = LCD_COLOR_BLUE;
                 if (isplayer1) fcolor = LCD_COLOR_RED;
                 lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, fcolor, LCD_COLOR_BLACK);
