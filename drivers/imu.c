@@ -85,7 +85,58 @@ int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
 void tx_com(uint8_t *tx_buffer, uint16_t len);
 void platform_delay(uint32_t ms);
 void platform_init(void);
+void imu_init() {
+    /* Initialize mems driver interface */
+  lsm6dsm_int1_route_t int_1_reg;
+  /* Uncomment if interrupt generation on 6D INT2 pin */
+  // lsm6dsm_int2_route_t int_2_reg;
+  dev_ctx.write_reg = platform_write;
+  dev_ctx.read_reg = platform_read;
 
+  /* Init test platform */
+  platform_init();
+  /* Wait sensor boot time */
+  platform_delay(15);
+  /* Check device ID */
+  lsm6dsm_device_id_get(&dev_ctx, &whoamI);
+
+  if (whoamI != LSM6DSM_ID)
+  {
+    printf("Device not found\n\r");
+    while (1)
+    {
+      /* manage here device not found */
+    }
+  }
+
+  /* Restore default configuration */
+  lsm6dsm_reset_set(&dev_ctx, PROPERTY_ENABLE);
+
+  do
+  {
+    lsm6dsm_reset_get(&dev_ctx, &rst);
+  } while (rst);
+
+  /* Set XL Output Data Rate */
+  lsm6dsm_xl_data_rate_set(&dev_ctx, LSM6DSM_XL_ODR_416Hz);
+  /* Set 2g full XL scale */
+  lsm6dsm_xl_full_scale_set(&dev_ctx, LSM6DSM_2g);
+  /* Set threshold to 60 degrees */
+  lsm6dsm_6d_threshold_set(&dev_ctx, LSM6DSM_DEG_60);
+  /* Use HP filter */
+  lsm6dsm_xl_hp_path_internal_set(&dev_ctx, LSM6DSM_USE_HPF);
+  /* LPF2 on 6D function selection */
+  lsm6dsm_6d_feed_data_set(&dev_ctx, LSM6DSM_LPF2_FEED);
+  /* Enable interrupt generation on 6D INT1 pin */
+  lsm6dsm_pin_int1_route_get(&dev_ctx, &int_1_reg);
+  int_1_reg.int1_6d = PROPERTY_ENABLE;
+  lsm6dsm_pin_int1_route_set(&dev_ctx, int_1_reg);
+  uint8_t CTRL2_G;
+  lsm6dsm_read_reg(&dev_ctx, IMU_REG_CTRL2_G, &CTRL2_G, 1);
+  CTRL2_G |= 0x60;
+  CTRL2_G &= 0x6f;
+  lsm6dsm_write_reg(&dev_ctx, IMU_REG_CTRL2_G, &CTRL2_G, 1);
+}
 void lsm6dsm_orientation(void)
 {
   /* Initialize mems driver interface */
@@ -280,7 +331,7 @@ int32_t platform_write(void *handle, uint8_t reg, const uint8_t *bufp,
   tx[0] = reg & 0x7F;
 
   // Copy the remaining bytes to the Tx message
-  memcmp(&tx[1], bufp, len);
+  memcpy(&tx[1], bufp, len);
 
   // Set the CS Low
   cyhal_gpio_write(PIN_SPI_IMU_CS, 0);
