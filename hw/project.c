@@ -31,6 +31,7 @@ bool player1_claimed;
 bool serve_ball;
 bool isplayer1;
 bool gameOver = false;
+bool gameOverDrawn = false;
 bool read_last_score;
 // Player player;
 // Ball ball;
@@ -75,6 +76,7 @@ void proj_main_app(void)
     balldy = 1;
     read_last_score = false;
     gameOver = false;
+    gameOverDrawn = false;
     // Player player = {
     //     .x_pos_center = SCREEN_X/2,//paddleLeftHeightPixels/2,
     //     .y_pos_center = SCREEN_Y/3
@@ -87,8 +89,8 @@ void proj_main_app(void)
     srand(time(NULL));
     task_eeprom_init();
     task_button_init();
-    player1_claimed = true;
-    active = true;
+    // player1_claimed = true;
+    // active = true;
     task_active_init();
     task_inactive_init();
     task_score_init();
@@ -120,6 +122,7 @@ void proj_periph_init(void)
     // // /* Init test platform */
 
     // initialize i2c
+    i2c_init();
 }
 
 //*****************************************************************************

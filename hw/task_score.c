@@ -45,12 +45,6 @@ void task_maintain_score()
                 {
                     player_two_ = score_message.player_two_score + 1;
                 }
-                if (score_message.player_one_score == 9 || score_message.player_two_score == 9) {
-                    endTime = time(NULL);
-                    deltTime = endTime - startTime;
-                    gameOver = true;
-                    xTaskNotifyGive(eeprom_task);
-                }
             }
             score_message.player_one_score = player_one_;
             score_message.player_two_score = player_two_;

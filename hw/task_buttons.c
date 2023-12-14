@@ -64,7 +64,8 @@ void task_ack() {
                 isplayer1 = true;
                 active = true;
                 serve_ball = false;
-                startTime = time(NULL);
+                active_color = LCD_COLOR_RED;
+                io_expander_set_output_port(0x08);
                 vTaskDelete(select_task);
                 vTaskDelete(ack_task);
             }
@@ -72,9 +73,9 @@ void task_ack() {
                 player1_claimed = true;
                 isplayer1 = false;
                 active = false;
-                startTime = time(NULL);
                 remote_uart_tx_char_async(ACK);
                 remote_uart_tx_char_async('\n');
+                io_expander_set_output_port(0x08);
                 vTaskDelete(select_task);
                 vTaskDelete(ack_task);
             }
@@ -84,6 +85,8 @@ void task_ack() {
 void task_button_init() {
     push_buttons_init();
     sw1_irq_enable();
+    io_expander_set_configuration(0x80);
+    io_expander_set_output_port(0x77);
     lcd_draw_image(
         (SCREEN_X)/2,
         (SCREEN_Y)/2,

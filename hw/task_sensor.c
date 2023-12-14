@@ -37,7 +37,6 @@ void i2c_read_command(uint8_t reg_add)
 
 void task_process_data()
 {
-    i2c_init();
 
     rslt = cyhal_i2c_master_write(&i2c_monarch_obj, dev_add_7,
     setup_data, 2, 0, true);

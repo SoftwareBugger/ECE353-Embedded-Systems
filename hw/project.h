@@ -64,6 +64,7 @@ extern uint8_t ballY;
 extern int8_t balldx;
 extern int8_t balldy;
 extern bool gameOver;
+extern bool gameOverDrawn;
 extern bool read_last_score;
 // extern Player player;
 // typedef struct player {

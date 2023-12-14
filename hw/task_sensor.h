@@ -11,7 +11,7 @@
 #ifndef __TASK_SENSOR_H__
 #define __TASK_SENSOR_H__
 
-#define LIGHT_THRESHOLD     10
+#define LIGHT_THRESHOLD     20
                             
 
 #include "main.h"

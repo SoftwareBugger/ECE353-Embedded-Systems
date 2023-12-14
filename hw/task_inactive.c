@@ -14,7 +14,7 @@ TaskHandle_t inactive_task;
 void task_update_inactive() {
     uint8_t score[2];
     while (1) {
-        if (!active && player1_claimed && !ball_crossed) {
+        if (!active && player1_claimed && !ball_crossed && !gameOver) {
             int8_t data[4];
             if (ALERT_UART_RX) {
                 memset(data, 0, 4);
