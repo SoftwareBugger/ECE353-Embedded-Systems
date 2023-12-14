@@ -16,6 +16,7 @@
 #include "task_buttons.h"
 #include "task_inactive.h"
 #include "task_score.h"
+#include "task_eeprom.h"
 
 
 #define SCREEN_X            320
@@ -62,6 +63,8 @@ extern uint16_t ballX;
 extern uint8_t ballY;
 extern int8_t balldx;
 extern int8_t balldy;
+extern bool gameOver;
+extern bool read_last_score;
 // extern Player player;
 // typedef struct player {
 //     uint16_t x_pos_center; // center position x of the player(paddle)

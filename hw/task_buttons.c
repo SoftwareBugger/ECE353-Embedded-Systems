@@ -14,6 +14,7 @@ TaskHandle_t select_task;
 TaskHandle_t ack_task;
 cyhal_gpio_callback_data_t sw1_callback_data;
 cyhal_gpio_callback_data_t sw2_callback_data;
+//extern score_message_t score_display;
 void sw1_handler()
 {
     BaseType_t xHigherPriorityTaskWoken;
@@ -63,6 +64,7 @@ void task_ack() {
                 isplayer1 = true;
                 active = true;
                 serve_ball = false;
+                startTime = time(NULL);
                 vTaskDelete(select_task);
                 vTaskDelete(ack_task);
             }
@@ -70,6 +72,7 @@ void task_ack() {
                 player1_claimed = true;
                 isplayer1 = false;
                 active = false;
+                startTime = time(NULL);
                 remote_uart_tx_char_async(ACK);
                 remote_uart_tx_char_async('\n');
                 vTaskDelete(select_task);

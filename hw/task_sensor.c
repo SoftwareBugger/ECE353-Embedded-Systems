@@ -43,13 +43,15 @@ void task_process_data()
     setup_data, 2, 0, true);
     while(1)
     {
-        i2c_read_command(ch1_low);
-        uint16_t ch1_data = ((read_data[1] << 8) | read_data[0]);
-        uint16_t ch2_data = ((read_data[3] << 8) | read_data[2]);
-        printf("%d\n", ch1_data);
-        if (ch1_data <= LIGHT_THRESHOLD || ch2_data <= LIGHT_THRESHOLD) light_enable = false;
-        else light_enable = true;
-        xQueueSend(send_light_queue, &light_enable, 5);
+        if (!gameOver) {
+            i2c_read_command(ch1_low);
+            uint16_t ch1_data = ((read_data[1] << 8) | read_data[0]);
+            uint16_t ch2_data = ((read_data[3] << 8) | read_data[2]);
+            if (ch1_data <= LIGHT_THRESHOLD || ch2_data <= LIGHT_THRESHOLD) light_enable = false;
+            else light_enable = true;
+            xQueueSend(send_light_queue, &light_enable, 5);
+        }
+        else vTaskDelay(0);
     }
 }
 

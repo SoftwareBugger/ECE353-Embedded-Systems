@@ -22,7 +22,7 @@ int offset = SCREEN_X/8;
 extern bool gameOver;
 bool light_en;
 int8_t x, y;
-
+time_t startTime;
 
 extern QueueHandle_t send_score_queue;
 extern QueueHandle_t send_light_queue;
@@ -92,7 +92,7 @@ void task_update(void *pvParameters) {
                 }
                 if (ballX < ballWidthPixels/2 + 5) {
                     balldx = -balldx;
-                    if (balldx == 0) balldx = (rand() % 2) + 1;
+                    if (balldx == 0) balldx = (rand() % 2) + 2;
                     bool reg = false;
                     if (isplayer1) {
                         xQueueSend(point_registered_queue, &reg, 5);
@@ -110,55 +110,53 @@ void task_update(void *pvParameters) {
                 if (ballY < ballHeightPixels/2 + 5) {
                     balldy = -balldy;
                     //if ball speed is 0, give it a random pos value
-                    if (balldy == 0) balldy = (rand() % 2) + 1;
-                    ballY++;
+                    if (balldy == 0) balldy = (rand() % 2) + 2;
                 }
                 //If ballY coordinate is recognizing a colosion with the top
                 if (ballY > SCREEN_Y - ballHeightPixels/2 - 5) {
                     balldy = -balldy;
                     //if ball speed is 0, give it a random neg value
-                    if (balldy == 0) balldy = -(rand() % 2) - 1;
-                    ballY--;
+                    if (balldy == 0) balldy = -(rand() % 2) - 2;
                 }
                 //If ballX Coord is coliding with the 
                 if (ballX > SCREEN_X - ballWidthPixels/2 - 5 && balldx > 0) {
                     balldx = -balldx;
-                    if (balldx == 0) balldx = -(rand() % 2) - 1;
-                    remote_uart_tx_char_async(balldx);
-                    remote_uart_tx_char_async(balldy + 6);
-                    remote_uart_tx_char_async(ballY);
-                    if (isplayer1) remote_uart_tx_char_async(score_display.player_one_score);
-                    else remote_uart_tx_char_async(score_display.player_two_score);
-                    remote_uart_tx_char_async('\n');
-                    active = false;
-                    ball_crossed = false;
+                    if (balldx == 0) balldx = -(rand() % 2) - 2;
+                    // remote_uart_tx_char_async(balldx);
+                    // remote_uart_tx_char_async(balldy + 6);
+                    // remote_uart_tx_char_async(ballY);
+                    // if (isplayer1) remote_uart_tx_char_async(score_display.player_one_score);
+                    // else remote_uart_tx_char_async(score_display.player_two_score);
+                    // remote_uart_tx_char_async('\n');
+                    // active = false;
+                    // ball_crossed = false;
                     xTaskNotifyGive(inactive_task);
                 }
                 if (in_contact_right()) {
                     if (playerX > paddleLeftWidthPixels/2 + 5) playerX -= 2;
-                    balldx = (rand() % 2) + 1;
-                    balldy = (rand() % 3);
+                    balldx = (rand() % 2) + 2;
+                    balldy = (rand() % 2) + 2;
                 }
                 //else if (joystick_read_x() < JOYSTICK_THRESH_X_RIGHT_0P825V && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX++;  
                 else if (x < -10 && playerX < SCREEN_X - paddleLeftWidthPixels/2 - 2) playerX += -(x/40);  
                 if (in_contact_left()) {
                     if (playerX < SCREEN_X - paddleLeftWidthPixels/2 - 5) playerX += 2;
-                    balldx = -(rand() % 2) - 1;
-                    balldy = (rand() % 3);
+                    balldx = -(rand() % 2) - 2;
+                    balldy = (rand() % 2) + 2;
                 }
                 //else if (joystick_read_x() > JOYSTICK_THRESH_X_LEFT_2P475V && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
                 else if (x > 10 && playerX > paddleLeftWidthPixels/2 + 5) playerX += -(x/40); 
                 if (in_contact_above()) {
                     if (playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 5) playerY += 2;
-                    balldx = (rand() % 3);
-                    balldy = -(rand() % 2) - 1;
+                    balldx = (rand() % 2) + 2;
+                    balldy = -(rand() % 2) - 2;
                 }
                 //else if (joystick_read_y() > JOYSTICK_THRESH_Y_UP_2P475V && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
-                else if (y < -10 && playerY > paddleLeftHeightPixels/2 + 5) playerY += (y/30); 
+                else if (y < -10 && playerY > paddleLeftHeightPixels/2 + 5) playerY += (y/15); 
                 if (in_contact_below()) {
                     if (playerY > paddleLeftHeightPixels/2 + 5) playerY -= 2;
-                    balldx = (rand() % 3);
-                    balldy = (rand() % 2) + 1;
+                    balldx = (rand() % 2) + 2;
+                    balldy = (rand() % 2) + 2;
                 }
                 //else if (joystick_read_y() < JOYSTICK_THRESH_Y_DOWN_0P825V && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
                 else if (y > 10 && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 5) playerY += (y/30); 
@@ -181,46 +179,30 @@ void task_update(void *pvParameters) {
                 //if (joystick_read_x() > JOYSTICK_THRESH_X_LEFT_2P475V && playerX > paddleLeftWidthPixels/2 + 2) playerX--;
                 if (x > 10 && playerX > paddleLeftWidthPixels/2 + 5) playerX += -(x/40); ;
                 //if (joystick_read_y() > JOYSTICK_THRESH_Y_UP_2P475V && playerY > paddleLeftHeightPixels/2 + 2) playerY--;
-                if (y < -10 && playerY > paddleLeftHeightPixels/2 + 5) playerY += (y/30); ;
+                if (y < -10 && playerY > paddleLeftHeightPixels/2 + 5) playerY += (y/15); ;
                 //if (joystick_read_y() < JOYSTICK_THRESH_Y_DOWN_0P825V && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 2) playerY++;
                 if (y > 10 && playerY < SCREEN_Y - paddleLeftHeightPixels/2 - 5) playerY += (y/30); ;
                 lcd_draw_image(playerX, playerY, paddleLeftHeightPixels, paddleLeftWidthPixels, paddleLeftBitmaps, active_color, LCD_COLOR_BLACK);
             }
 
             xQueueReceive(send_score_queue, &score_display, portMAX_DELAY);
-            if (score_display.player_one_score == 9 || score_display.player_two_score == 9) {
-                gameOver = true;
-            }
+            // if (score_display.player_one_score == 9 || score_display.player_two_score == 9) {
+            //     gameOver = true;
+            // }
             uint8_t *one_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_one_score]];
             uint8_t *two_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[score_display.player_two_score]];
-            uint8_t *colon_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[10]];
-            if (gameOver){
-                                
-                lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
-                numberHeightPixels, one_bitmap , LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-                lcd_draw_image(RIGHT_BOUND - 80, UPPER_BOUND - 40, numberWidthPixels, 
-                numberHeightPixels, two_bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-                lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
-                numberHeightPixels, colon_bitmap, LCD_COLOR_BLACK, LCD_COLOR_BLACK);
-                lcd_draw_image((SCREEN_X)/2, (SCREEN_Y)/2, gameOverWidthPixels, gameOverHeightPixels, gameOverBitmaps,LCD_COLOR_GREEN, LCD_COLOR_BLACK);
-                if (one_bitmap == 9){
-                lcd_draw_image(RIGHT_BOUND - 140, UPPER_BOUND - 60, numberWidthPixels, 
-                numberHeightPixels, one_bitmap , LCD_COLOR_GREEN, LCD_COLOR_BLACK); 
-                } else {
-                    lcd_draw_image(RIGHT_BOUND - 140, UPPER_BOUND - 60, numberWidthPixels, 
-                numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK); 
-                }
-                if (two_bitmap == 9){
-                    lcd_draw_image(RIGHT_BOUND - 180, UPPER_BOUND - 60, numberWidthPixels, 
-                    numberHeightPixels, two_bitmap, LCD_COLOR_GREEN, LCD_COLOR_BLACK);
-                } else {
-                    lcd_draw_image(RIGHT_BOUND - 180, UPPER_BOUND - 60, numberWidthPixels, 
-                    numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);  
-                }
-                lcd_draw_image(RIGHT_BOUND - 160, UPPER_BOUND - 60, numberWidthPixels,
+            uint8_t *colon_bitmap = (uint8_t *)&proj_num_bitmaps[proj_num_offset[10]];  
+            if (score_display.player_one_score == 9 || score_display.player_two_score == 9) {
+                lcd_draw_image((SCREEN_X)/2, (SCREEN_Y)/2, gameOverWidthPixels, gameOverHeightPixels, gameOverBitmaps,LCD_COLOR_GREEN, LCD_COLOR_BLACK);  
+                gameOver = true;
+                deltTime = time(NULL) - startTime;
+                lcd_draw_image(SCREEN_X/2 - 20, UPPER_BOUND/2 + 50, numberWidthPixels, 
+                numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                lcd_draw_image(SCREEN_X/2 + 20, UPPER_BOUND/2 + 50, numberWidthPixels, 
+                numberHeightPixels, two_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+                lcd_draw_image(SCREEN_X/2, UPPER_BOUND/2 + 50, numberWidthPixels,
                 numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-                
-            }
+            } 
             else {
                 lcd_draw_image(RIGHT_BOUND - 40, UPPER_BOUND - 40, numberWidthPixels, 
                 numberHeightPixels, one_bitmap , LCD_COLOR_WHITE, LCD_COLOR_BLACK);
@@ -229,6 +211,10 @@ void task_update(void *pvParameters) {
                 lcd_draw_image(RIGHT_BOUND - 60, UPPER_BOUND - 40, numberWidthPixels,
                 numberHeightPixels, colon_bitmap, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
             }
+            
+        }
+        else {                        
+            vTaskDelay(0);
         }
     }
 }
@@ -265,13 +251,14 @@ void task_clear(void *pvParameters) {
             if (!cleared) {
                 lcd_clear_screen(LCD_COLOR_BLACK);
                 cleared = true;
+                vTaskDelete(clear_task);
             }
+            else vTaskDelay(0);
 
         }
     }
 }
 void task_read_xl(void *pvParameters) {
-  spi_init();
   while (1)
   {
     static uint8_t counter = 0;

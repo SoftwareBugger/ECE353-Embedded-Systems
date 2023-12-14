@@ -40,6 +40,7 @@ void task_update_inactive() {
                 }
             }
         }
+        else vTaskDelay(0);
     }
 }
 void task_inactive_init() {

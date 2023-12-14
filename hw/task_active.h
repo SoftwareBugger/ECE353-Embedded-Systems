@@ -15,6 +15,8 @@
 extern TaskHandle_t update_task;
 extern TaskHandle_t clear_task;
 extern TaskHandle_t light_task;
+extern time_t startTime;
+extern time_t endTime;
 extern bool cleared;
 extern bool ball_crossed;
 void task_active_init();
