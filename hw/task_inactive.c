@@ -34,7 +34,6 @@ void task_update_inactive() {
                     balldy = data[1] - 6;
                     ballY = (uint8_t)data[2];
                     ballX = SCREEN_X - ballWidthPixels/2 - 5;
-                    printf("balldx :%i, balldy :%i, ballY :%u, ballX :%u\n", balldx, balldy, ballY, ballX);
                     active = true;
                     ball_crossed = true;
                 }

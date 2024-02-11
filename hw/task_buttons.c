@@ -47,7 +47,6 @@ void sw1_irq_enable(void)
 
 void task_select() {
     while (1) {
-        printf("called\n");
         ulTaskNotifyTake(true, portMAX_DELAY);
         remote_uart_tx_char_async(CLAIME_PLAYER1);
         remote_uart_tx_char_async('\n');
