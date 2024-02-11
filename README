@@ -1,0 +1,3 @@
+This is a embedded pong game featuring two-board interactions and graphical animation design. Users can tilt the board to move the paddle using the IMU sensor and hit the ball. 
+The board communication is done through UART and there are also some intercommunications between peripherals and MCU through SPI and I2C. The demonstration can be found 
+https://www.youtube.com/watch?v=5wKXYSq8LO4
